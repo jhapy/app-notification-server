@@ -1,14 +1,14 @@
 package org.jhapy.notification.config.changelogs;
 
-import com.github.mongobee.changeset.ChangeLog;
-import com.github.mongobee.changeset.ChangeSet;
+import com.github.cloudyrock.mongock.ChangeLog;
+import com.github.cloudyrock.mongock.ChangeSet;
 import java.util.Locale;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.stereotype.Component;
 import org.jhapy.dto.domain.notification.MailActionEnum;
 import org.jhapy.dto.domain.notification.SmsActionEnum;
 import org.jhapy.notification.domain.MailTemplate;
 import org.jhapy.notification.domain.SmsTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.stereotype.Component;
 
 @Component
 @ChangeLog

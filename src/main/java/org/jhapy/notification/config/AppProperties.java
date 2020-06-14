@@ -5,8 +5,8 @@ import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Getter
-@ConfigurationProperties(prefix = "app")
-public class AppProperties {
+@ConfigurationProperties(prefix = "jhapy")
+public class AppProperties extends org.jhapy.commons.config.AppProperties {
 
   private final FirebaseConfig firebase = new FirebaseConfig();
 

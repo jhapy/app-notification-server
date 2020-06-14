@@ -1,11 +1,11 @@
 package org.jhapy.notification.repository;
 
 import java.util.Optional;
+import org.jhapy.notification.domain.CloudNotificationMessageTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
-import org.jhapy.notification.domain.CloudNotificationMessageTemplate;
 
 /**
  * @author jHapy Lead Dev.

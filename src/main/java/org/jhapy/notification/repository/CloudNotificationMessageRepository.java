@@ -1,12 +1,12 @@
 package org.jhapy.notification.repository;
 
 import java.util.List;
+import org.jhapy.notification.domain.CloudNotificationMessage;
+import org.jhapy.notification.domain.CloudNotificationMessageStatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
-import org.jhapy.notification.domain.CloudNotificationMessage;
-import org.jhapy.notification.domain.CloudNotificationMessageStatusEnum;
 
 /**
  * @author jHapy Lead Dev.

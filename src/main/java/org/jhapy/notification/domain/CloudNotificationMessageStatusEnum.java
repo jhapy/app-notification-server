@@ -6,5 +6,5 @@ package org.jhapy.notification.domain;
  * @since 2019-02-22
  */
 public enum CloudNotificationMessageStatusEnum {
-  NOT_SENT, SENT, ERROR, RETRYING;
+  NOT_SENT, SENT, ERROR, RETRYING
 }

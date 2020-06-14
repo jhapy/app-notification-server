@@ -7,18 +7,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.notification.client.CloudNotificationMessageProvider;
 import org.jhapy.notification.domain.CloudNotificationMessage;
 import org.jhapy.notification.domain.CloudNotificationMessageStatusEnum;
 import org.jhapy.notification.domain.CloudNotificationMessageTemplate;
 import org.jhapy.notification.repository.CloudNotificationMessageRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 /**
  * @author jHapy Lead Dev.

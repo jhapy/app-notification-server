@@ -1,9 +1,9 @@
 package org.jhapy.notification.task;
 
+import org.jhapy.notification.service.SmsService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.jhapy.notification.service.SmsService;
 
 /**
  * @author jHapy Lead Dev.
@@ -21,7 +21,7 @@ public class SmsQueueTask {
     this.smsService = smsService;
   }
 
-  @Scheduled(cron = "${app.tasks.smsQueueCronExpression}")
+  @Scheduled(cron = "${jhapy.tasks.smsQueueCronExpression}")
   public void processSmsQueue() {
     smsService.processNotSentSms();
   }

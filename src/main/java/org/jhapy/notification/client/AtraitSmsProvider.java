@@ -2,6 +2,7 @@ package org.jhapy.notification.client;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.jhapy.commons.utils.HasLogger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.jhapy.commons.utils.HasLogger;
 
 /**
  * @author jHapy Lead Dev.
@@ -19,13 +19,13 @@ import org.jhapy.commons.utils.HasLogger;
 @Component
 public class AtraitSmsProvider implements SmsProvider, HasLogger {
 
-  @Value("${app.sms.atrait.login}")
+  @Value("${jhapy.sms.atrait.login}")
   private String login;
-  @Value("${app.sms.atrait.password}")
+  @Value("${jhapy.sms.atrait.password}")
   private String password;
-  @Value("${app.sms.atrait.url}")
+  @Value("${jhapy.sms.atrait.url}")
   private String url;
-  @Value("${app.sms.atrait.shortCode}")
+  @Value("${jhapy.sms.atrait.shortCode}")
   private String shortCode;
 
   @Override

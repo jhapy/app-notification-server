@@ -1,9 +1,9 @@
 package org.jhapy.notification.service;
 
 import java.util.Optional;
+import org.jhapy.notification.domain.MailTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.jhapy.notification.domain.MailTemplate;
 
 
 public interface MailTemplateService extends BaseCrudService<MailTemplate> {

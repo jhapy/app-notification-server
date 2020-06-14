@@ -1,9 +1,9 @@
 package org.jhapy.notification.task;
 
+import org.jhapy.notification.service.MailService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.jhapy.notification.service.MailService;
 
 /**
  * @author jHapy Lead Dev.
@@ -21,7 +21,7 @@ public class EmailQueueTask {
     this.mailService = mailService;
   }
 
-  @Scheduled(cron = "${app.tasks.emailQueueCronExpression}")
+  @Scheduled(cron = "${jhapy.tasks.emailQueueCronExpression}")
   public void processEmailQueue() {
     mailService.processNotSentEmails();
   }

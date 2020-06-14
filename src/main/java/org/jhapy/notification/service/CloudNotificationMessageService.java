@@ -2,10 +2,10 @@ package org.jhapy.notification.service;
 
 
 import java.util.Map;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.jhapy.notification.domain.CloudNotificationMessage;
 import org.jhapy.notification.domain.CloudNotificationMessageStatusEnum;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * @author jHapy Lead Dev.

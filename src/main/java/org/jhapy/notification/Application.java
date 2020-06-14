@@ -5,6 +5,9 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
 import org.apache.commons.lang3.StringUtils;
+import org.jhapy.commons.utils.DefaultProfileUtil;
+import org.jhapy.commons.utils.SpringProfileConstants;
+import org.jhapy.notification.config.AppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -15,9 +18,7 @@ import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
-import org.jhapy.commons.utils.DefaultProfileUtil;
-import org.jhapy.commons.utils.SpringProfileConstants;
-import org.jhapy.notification.config.AppProperties;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 
 /**
  * @author jHapy Lead Dev.
@@ -26,8 +27,9 @@ import org.jhapy.notification.config.AppProperties;
  */
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableCircuitBreaker
 @EnableConfigurationProperties(AppProperties.class)
+@EnableCircuitBreaker
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @ComponentScan({"org.jhapy.notification", "org.jhapy.commons"})
 public class Application implements InitializingBean {
 

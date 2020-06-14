@@ -1,7 +1,5 @@
 package org.jhapy.notification.converter;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
 import org.jhapy.commons.utils.OrikaBeanMapper;
 import org.jhapy.notification.domain.CloudDataMessage;
 import org.jhapy.notification.domain.CloudDataMessageTemplate;
@@ -11,6 +9,8 @@ import org.jhapy.notification.domain.Mail;
 import org.jhapy.notification.domain.MailTemplate;
 import org.jhapy.notification.domain.Sms;
 import org.jhapy.notification.domain.SmsTemplate;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 /**
  * @author jHapy Lead Dev.

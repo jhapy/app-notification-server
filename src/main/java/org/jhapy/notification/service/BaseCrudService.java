@@ -1,10 +1,10 @@
 package org.jhapy.notification.service;
 
 
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.transaction.annotation.Transactional;
 import org.jhapy.dto.domain.exception.EntityNotFoundException;
 import org.jhapy.notification.domain.BaseEntity;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author jHapy Lead Dev.

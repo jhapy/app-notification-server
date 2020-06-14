@@ -2,15 +2,14 @@ package org.jhapy.notification.service;
 
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import org.jhapy.commons.utils.HasLogger;
+import org.jhapy.notification.domain.SmsTemplate;
+import org.jhapy.notification.repository.SmsTemplateRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.jhapy.commons.utils.HasLogger;
-import org.jhapy.notification.domain.MailTemplate;
-import org.jhapy.notification.domain.SmsTemplate;
-import org.jhapy.notification.repository.SmsTemplateRepository;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,7 +24,7 @@ public class SmsTemplateServiceImpl implements SmsTemplateService, HasLogger {
 
   @Override
   public SmsTemplate getBySmsAction(String smsAction) {
-    return smsTemplateRepository.findBySmsActionAndIsActiveIsTrue( smsAction ).orElse(null);
+    return smsTemplateRepository.findBySmsActionAndIsActiveIsTrue(smsAction).orElse(null);
   }
 
   @Override

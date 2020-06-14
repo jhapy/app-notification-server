@@ -1,11 +1,11 @@
 package org.jhapy.notification.receiver;
 
-import org.springframework.jms.annotation.JmsListener;
-import org.springframework.stereotype.Component;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.dto.domain.notification.Sms;
 import org.jhapy.notification.domain.SmsStatusEnum;
 import org.jhapy.notification.service.SmsService;
+import org.springframework.jms.annotation.JmsListener;
+import org.springframework.stereotype.Component;
 
 /**
  * @author jHapy Lead Dev.

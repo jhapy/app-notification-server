@@ -17,9 +17,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.notification.config.AppProperties;
+import org.springframework.stereotype.Service;
 
 
 /**

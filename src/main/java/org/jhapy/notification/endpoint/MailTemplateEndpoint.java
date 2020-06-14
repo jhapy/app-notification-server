@@ -1,9 +1,5 @@
 package org.jhapy.notification.endpoint;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.jhapy.commons.endpoint.BaseEndpoint;
 import org.jhapy.commons.utils.OrikaBeanMapper;
 import org.jhapy.dto.serviceQuery.ServiceResult;
@@ -15,6 +11,14 @@ import org.jhapy.dto.serviceQuery.generic.GetByStrIdQuery;
 import org.jhapy.dto.serviceQuery.generic.SaveQuery;
 import org.jhapy.notification.domain.MailTemplate;
 import org.jhapy.notification.service.MailTemplateService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author jHapy Lead Dev.

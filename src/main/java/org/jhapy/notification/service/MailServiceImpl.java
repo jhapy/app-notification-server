@@ -9,6 +9,11 @@ import java.util.Optional;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang3.StringUtils;
+import org.jhapy.commons.utils.HasLogger;
+import org.jhapy.notification.domain.Mail;
+import org.jhapy.notification.domain.MailStatusEnum;
+import org.jhapy.notification.domain.MailTemplate;
+import org.jhapy.notification.repository.MailMessageRepository;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,11 +25,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
-import org.jhapy.commons.utils.HasLogger;
-import org.jhapy.notification.domain.Mail;
-import org.jhapy.notification.domain.MailStatusEnum;
-import org.jhapy.notification.domain.MailTemplate;
-import org.jhapy.notification.repository.MailMessageRepository;
 
 /**
  * @author jHapy Lead Dev.
