@@ -12,6 +12,6 @@ ADD target/app-notification-server.jar /app/
 
 ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app/app-notification-server.jar $APP_OPTS"]
 
-HEALTHCHECK --interval=30s --timeout=30s --retries=10 CMD curl -f http://localhost:9103/actuator/health || exit 1
+HEALTHCHECK --interval=30s --timeout=30s --retries=10 CMD curl -f http://localhost:9103/management/health || exit 1
 
 EXPOSE 9003 9103
