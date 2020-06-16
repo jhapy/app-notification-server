@@ -2,6 +2,7 @@ package org.jhapy.notification.config.changelogs;
 
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
+import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import java.util.Locale;
 import org.jhapy.dto.domain.notification.MailActionEnum;
 import org.jhapy.dto.domain.notification.SmsActionEnum;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class MailInitialValuesChangeLog {
 
   @ChangeSet(order = "001", id = "insertVerificationCodeEmail", author = "jHapy Dev1")
-  public void insertVerificationCodeEmail(MongoTemplate mongoTemplate) {
+  public void insertVerificationCodeEmail(MongockTemplate mongoTemplate) {
     MailTemplate notificationMailTemplate = new MailTemplate();
     notificationMailTemplate.setMailAction(MailActionEnum.EMAIL_VERIFICATION.name());
     notificationMailTemplate.setBody("Hi,<br/>"
@@ -32,7 +33,7 @@ public class MailInitialValuesChangeLog {
   }
 
   @ChangeSet(order = "002", id = "insertVerificationCodeSms", author = "jHapy Dev1")
-  public void insertVerificationCodeSms(MongoTemplate mongoTemplate) {
+  public void insertVerificationCodeSms(MongockTemplate mongoTemplate) {
     SmsTemplate notificationSmsTemplate = new SmsTemplate();
     notificationSmsTemplate.setSmsAction(SmsActionEnum.SMS_VERIFICATION.name());
     notificationSmsTemplate.setBody("Code jHapy ${verificationCode}");
@@ -43,7 +44,7 @@ public class MailInitialValuesChangeLog {
   }
 
   @ChangeSet(order = "003", id = "insertForgetPasswordEmail", author = "jHapy Dev1")
-  public void insertForgetPasswordEmail(MongoTemplate mongoTemplate) {
+  public void insertForgetPasswordEmail(MongockTemplate mongoTemplate) {
     MailTemplate notificationMailTemplate = new MailTemplate();
     notificationMailTemplate.setMailAction(MailActionEnum.EMAIL_FORGET_PASSWORD.name());
     notificationMailTemplate.setBody("Hi,<br/>"
@@ -58,7 +59,7 @@ public class MailInitialValuesChangeLog {
   }
 
   @ChangeSet(order = "004", id = "insertForgetPasswordSms", author = "jHapy Dev1")
-  public void insertForgetPasswordSms(MongoTemplate mongoTemplate) {
+  public void insertForgetPasswordSms(MongockTemplate mongoTemplate) {
     SmsTemplate notificationSmsTemplate = new SmsTemplate();
     notificationSmsTemplate.setSmsAction(SmsActionEnum.SMS_FORGET_PASSWORD.name());
     notificationSmsTemplate.setBody("Reset Code for JHapy : ${resetCode}");
@@ -69,7 +70,7 @@ public class MailInitialValuesChangeLog {
   }
 
   @ChangeSet(order = "005", id = "createTransactionalCollections", author = "jHapy Dev1")
-  public void createTransactionalCollections(MongoTemplate mongoTemplate) {
+  public void createTransactionalCollections(MongockTemplate mongoTemplate) {
     //mongoTemplate.createCollection(Sms.class);
     //mongoTemplate.createCollection(Mail.class);
 

@@ -2,6 +2,7 @@ package org.jhapy.notification.config.changelogs;
 
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
+import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import org.jhapy.notification.domain.CloudDataMessage;
 import org.jhapy.notification.domain.CloudDataMessageTemplate;
 import org.jhapy.notification.domain.CloudNotificationMessage;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class InitialValuesChangeLog {
 
   @ChangeSet(order = "001", id = "createTransactionalCollections", author = "jHapy Dev1")
-  public void createTransactionalCollections(MongoTemplate mongoTemplate) {
+  public void createTransactionalCollections(MongockTemplate mongoTemplate) {
     if (!mongoTemplate.collectionExists("sms")) {
       mongoTemplate.createCollection(Sms.class);
     }
@@ -28,7 +29,7 @@ public class InitialValuesChangeLog {
   }
 
   @ChangeSet(order = "002", id = "createTransactionalCollections2", author = "jHapy Dev1")
-  public void createTransactionalCollections2(MongoTemplate mongoTemplate) {
+  public void createTransactionalCollections2(MongockTemplate mongoTemplate) {
     if (!mongoTemplate.collectionExists("mailTemplate")) {
       mongoTemplate.createCollection(MailTemplate.class);
     }
@@ -38,7 +39,7 @@ public class InitialValuesChangeLog {
   }
 
   @ChangeSet(order = "003", id = "createTransactionalCollections3", author = "jHapy Dev1")
-  public void createTransactionalCollections3(MongoTemplate mongoTemplate) {
+  public void createTransactionalCollections3(MongockTemplate mongoTemplate) {
     if (!mongoTemplate.collectionExists("cloudDataMessage")) {
       mongoTemplate.createCollection(CloudDataMessage.class);
     }
