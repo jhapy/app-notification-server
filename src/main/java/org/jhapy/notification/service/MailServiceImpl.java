@@ -109,6 +109,8 @@ public class MailServiceImpl implements MailService, HasLogger {
       } else {
         logger().warn(loggerPrefix + "No email to send.");
       }
+    } else  {
+      logger().error(loggerPrefix + "Template not found = {}", emailAction);
     }
     return null;
   }

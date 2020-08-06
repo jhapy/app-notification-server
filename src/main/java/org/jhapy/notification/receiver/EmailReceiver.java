@@ -37,6 +37,6 @@ public class EmailReceiver implements HasLogger {
         .sendEmail(mail.getTo(), mail.getMailAction(),
             mail.getAttributes(), mail.getAttachements(),
             mail.getIso3Language());
-    logger().info(loggerPrefix + "Sms status {} ", result);
+    logger().info(loggerPrefix + "Mail status {} ", result);
   }
 }
