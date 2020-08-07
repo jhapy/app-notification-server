@@ -5,7 +5,7 @@ import org.jhapy.dto.domain.notification.CloudNotificationMessage;
 import org.jhapy.dto.domain.notification.Mail;
 import org.jhapy.notification.domain.CloudNotificationMessageStatusEnum;
 import org.jhapy.notification.service.CloudNotificationMessageService;
-import org.springframework.jms.annotation.JmsListener;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 /**
@@ -30,7 +30,7 @@ public class CloudNotificationMessageReceiver implements HasLogger {
    * @param cloudNotificationMessage the received notification
    * @see Mail
    */
-  @JmsListener(destination = "cloudNotification")
+  @RabbitListener(queues = "cloudNotification")
   public void onNewCloudNotificationMessage(
       final CloudNotificationMessage cloudNotificationMessage) {
     String loggerPrefix = getLoggerPrefix("onNewCloudNotificationMessage");

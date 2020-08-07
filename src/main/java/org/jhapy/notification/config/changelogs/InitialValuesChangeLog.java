@@ -11,7 +11,6 @@ import org.jhapy.notification.domain.Mail;
 import org.jhapy.notification.domain.MailTemplate;
 import org.jhapy.notification.domain.Sms;
 import org.jhapy.notification.domain.SmsTemplate;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 @Component

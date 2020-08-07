@@ -4,7 +4,7 @@ import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.dto.domain.notification.Sms;
 import org.jhapy.notification.domain.SmsStatusEnum;
 import org.jhapy.notification.service.SmsService;
-import org.springframework.jms.annotation.JmsListener;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,7 +27,7 @@ public class SmsReceiver implements HasLogger {
    * @param sms the received email
    * @see Sms
    */
-  @JmsListener(destination = "sms")
+  @RabbitListener(queues = "sms")
   public void onNewSms(final Sms sms) {
     String loggerPrefix = getLoggerPrefix("onNewSms");
     logger().info(loggerPrefix + "Receiving a request from {} for sending sms to {} ",

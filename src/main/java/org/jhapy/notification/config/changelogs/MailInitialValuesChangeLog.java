@@ -8,7 +8,6 @@ import org.jhapy.dto.domain.notification.MailActionEnum;
 import org.jhapy.dto.domain.notification.SmsActionEnum;
 import org.jhapy.notification.domain.MailTemplate;
 import org.jhapy.notification.domain.SmsTemplate;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
