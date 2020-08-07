@@ -6,7 +6,6 @@ spring:
       fail-fast: true
       username: admin
       password: ${jhapy.registry.password}
-      label: test
     refresh:
       enabled: false
   main:
