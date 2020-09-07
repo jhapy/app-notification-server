@@ -36,8 +36,8 @@
     <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
     <dockerfile-maven-version>1.4.13</dockerfile-maven-version>
 
-    <spring-cloud.version>Hoxton.SR6</spring-cloud.version>
-    <spring-data.version>Neumann-SR1</spring-data.version>
+    <spring-cloud.version>Hoxton.SR7</spring-cloud.version>
+    <spring-data.version>Neumann-SR3</spring-data.version>
 
     <problem-spring-web.version>0.25.2</problem-spring-web.version>
     <micrometer-core.version>1.5.1</micrometer-core.version>
