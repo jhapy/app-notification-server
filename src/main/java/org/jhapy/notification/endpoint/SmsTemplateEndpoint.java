@@ -25,9 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @version 1.0
  * @since 2019-06-05
  */
-@CrossOrigin("http://localhost:4200")
 @RestController
-@RequestMapping("/smsTemplateService")
+@RequestMapping("/api/smsTemplateService")
 public class SmsTemplateEndpoint extends BaseEndpoint {
 
   private final SmsTemplateService smsTemplateService;

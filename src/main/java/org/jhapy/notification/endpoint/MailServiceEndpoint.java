@@ -24,9 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2019-06-05
  */
 
-@CrossOrigin("http://localhost:4200")
 @RestController
-@RequestMapping("/mailService")
+@RequestMapping("/api/mailService")
 public class MailServiceEndpoint extends BaseEndpoint {
 
   private final MailService mailService;

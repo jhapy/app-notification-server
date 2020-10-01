@@ -24,9 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2019-06-05
  */
 
-@CrossOrigin("http://localhost:4200")
 @RestController
-@RequestMapping("/cloudNotificationMessageService")
+@RequestMapping("/api/cloudNotificationMessageService")
 public class CloudNotificationMessageServiceEndpoint extends BaseEndpoint {
 
   private final CloudNotificationMessageService cloudNotificationMessageService;
