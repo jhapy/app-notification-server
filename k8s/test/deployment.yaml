@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: app-notification-server
-          image: eu.gcr.io/thothee/app-notification-server:latest
+          image: eu.gcr.io/thothee/app-notification-server-k8s:v2
           env:
             - name: JAVA_OPTS
               value: '-Xms256m -Xmx512m -Dspring.cloud.config.label=test -Dspring.cloud.config.uri=http://admin:admin@utils-registry-server.thothee-test.svc.cluster.local:8888/config -Djhapy.registry.password=admin'
