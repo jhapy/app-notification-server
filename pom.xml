@@ -29,6 +29,9 @@
 
     <spring-boot.version>2.3.4.RELEASE</spring-boot.version>
 
+    <docker-base-image-name>jhapy/base-image-slim:1.0</docker-base-image-name>
+    <docker-target-image-name>jhapy/app-notification-server:v2</docker-target-image-name>
+
     <!-- These remain empty unless the corresponding profile is active -->
     <profile.swagger/>
     <profile.tls/>
@@ -365,10 +368,10 @@
           <version>${jib-maven-plugin.version}</version>
           <configuration>
             <from>
-              <image>jhapy/base-image-slim:1.0</image>
+              <image>${docker-base-image-name}</image>
             </from>
             <to>
-              <image>eu.gcr.io/thothee/app-notification-server:latest</image>
+              <image>${docker-target-image-name}</image>
             </to>
             <container>
               <entrypoint>
@@ -505,6 +508,9 @@
   <profiles>
     <profile>
       <id>k8s</id>
+      <properties>
+        <docker-target-image-name>jhapy/app-notification-server-k8s:v2</docker-target-image-name>
+      </properties>
       <dependencies>
         <dependency>
           <groupId>org.springframework.cloud</groupId>
