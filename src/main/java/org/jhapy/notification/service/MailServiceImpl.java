@@ -171,6 +171,7 @@ public class MailServiceImpl implements MailService, HasLogger {
       MimeMessageHelper helper = new MimeMessageHelper(message,
           MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
           StandardCharsets.UTF_8.name());
+      helper.setFrom(mail.getFrom());
       helper.setTo(mail.getTo());
       if (StringUtils.isNotBlank(mail.getCopyTo())) {
         helper.setCc(mail.getCopyTo());
