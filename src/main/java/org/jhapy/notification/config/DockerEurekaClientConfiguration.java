@@ -1,3 +1,21 @@
+/*
+ * Copyright 2020-2020 the original author or authors from the JHapy project.
+ *
+ * This file is part of the JHapy project, see https://www.jhapy.org/ for more information.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.jhapy.notification.config;
 
 import java.net.Inet4Address;
@@ -5,6 +23,7 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -33,6 +52,8 @@ public class DockerEurekaClientConfiguration implements
   private final ConfigurableEnvironment env;
 
   public DockerEurekaClientConfiguration(ConfigurableEnvironment env) {
+    String loggerPrefix = getLoggerPrefix("DockerEurekaClientConfiguration");
+    logger().info(loggerPrefix + "Startup");
     this.env = env;
   }
 
@@ -68,8 +89,7 @@ public class DockerEurekaClientConfiguration implements
         .getProperty("management.server.ssl.enabled", Boolean.class, false);
     String managementContextPath = this.env.getProperty("management.servlet.context-path",
         this.env.getProperty("management.endpoints.web.base-path", "/management"));
-    Integer jmxPort = this.env
-        .getProperty("com.sun.management.jmxremote.port", Integer.class);
+    Integer jmxPort = this.env.getProperty("com.sun.management.jmxremote.port", Integer.class);
     EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
     instance.setNonSecurePort(serverPort);
     instance.setInstanceId(IdUtils.getDefaultInstanceId(this.env));
@@ -118,8 +138,15 @@ public class DockerEurekaClientConfiguration implements
     this.setupJmxPort(instance, jmxPort);
 
     EurekaInstanceConfigBean result = null;
+    SubnetUtils subnet = null;
+    if (env.getProperty("eureka.instance.network") != null) {
+      String specifiedNetwork = env.getProperty("eureka.instance.network");
+      logger().info(loggerPrefix + "Network is specified : " + specifiedNetwork);
+      subnet = new SubnetUtils(specifiedNetwork);
+    }
+
     int nbLoop = 1;
-    while (result == null) {
+    while (result == null & nbLoop <= 10) {
       logger().info(loggerPrefix + "Loop " + nbLoop++);
       try {
         List<String> servers = eurekaClientConfigBean(env).getEurekaServerServiceUrls(null);
@@ -135,26 +162,42 @@ public class DockerEurekaClientConfiguration implements
                   interfaceAddress.getAddress(),
                   interfaceAddress.getNetworkPrefixLength()
               );
-              SubnetUtils subnet = new SubnetUtils(
-                  interfaceAddress.getAddress().getHostAddress() +
-                      "/" + interfaceAddress.getNetworkPrefixLength()
-              );
-              for (String server : servers) {
-                URL serverUrl = new URL(server);
-                InetAddress eurekaServerAddress = InetAddress.getByName(serverUrl.getHost());
-                boolean matches = subnet.getInfo().isInRange(eurekaServerAddress.getHostAddress());
-                logger().info(loggerPrefix + "Testing server {} ({}): {}", server,
-                    eurekaServerAddress.getHostAddress(), matches);
-                if (matches) {
-                  logger().info(loggerPrefix +
-                          "Found Interface {}: {} ({})",
-                      networkInterface.getName(),
-                      interfaceAddress.getAddress().getHostName(),
-                      interfaceAddress.getAddress().getHostAddress()
-                  );
+
+              if (subnet != null) {
+                if (subnet.getInfo().isInRange(interfaceAddress.getAddress().getHostAddress())) {
+                  logger().info(loggerPrefix + "Interface match with specified network");
                   result = createEurekaInstanceConfigBean(inetUtils, instance,
                       isManagementSecuredPortEnabled, managementContextPath, interfaceAddress);
                   break external_loop;
+                }
+              } else {
+                SubnetUtils addressSubnet = new SubnetUtils(
+                    interfaceAddress.getAddress().getHostAddress() +
+                        "/" + interfaceAddress.getNetworkPrefixLength()
+                );
+                logger().info(loggerPrefix + servers.size() + " servers to check");
+                for (String server : servers) {
+                  URL serverUrl = new URL(server);
+                  try {
+                    InetAddress eurekaServerAddress = InetAddress.getByName(serverUrl.getHost());
+                    boolean matches = addressSubnet.getInfo()
+                        .isInRange(eurekaServerAddress.getHostAddress());
+                    logger().info(loggerPrefix + "Testing server {} ({}): {}", server,
+                        eurekaServerAddress.getHostAddress(), matches);
+                    if (matches) {
+                      logger().info(loggerPrefix +
+                              "Found Interface {}: {} ({})",
+                          networkInterface.getName(),
+                          interfaceAddress.getAddress().getHostName(),
+                          interfaceAddress.getAddress().getHostAddress()
+                      );
+                      result = createEurekaInstanceConfigBean(inetUtils, instance,
+                          isManagementSecuredPortEnabled, managementContextPath, interfaceAddress);
+                      break external_loop;
+                    }
+                  } catch (UnknownHostException e) {
+                    logger().warn(loggerPrefix + "Host not found on interface");
+                  }
                 }
               }
             } else {
@@ -175,6 +218,10 @@ public class DockerEurekaClientConfiguration implements
       } catch (InterruptedException e) {
       }
     }
+    if (result == null) {
+      logger().error(loggerPrefix + "Unable to getEurekaInstance, exiting");
+      System.exit(-1);
+    }
     return result;
   }
 
@@ -188,6 +235,8 @@ public class DockerEurekaClientConfiguration implements
   private EurekaInstanceConfigBean createEurekaInstanceConfigBean(InetUtils inetUtils,
       EurekaInstanceConfigBean defaultResult, Boolean isManagementSecuredPortEnabled,
       String managementContextPath, InterfaceAddress interfaceAddress) {
+    String loggerPrefix = getLoggerPrefix("createEurekaInstanceConfigBean");
+
     EurekaInstanceConfigBean result;
     result = new EurekaInstanceConfigBean(inetUtils);
     result.setPreferIpAddress(defaultResult.isPreferIpAddress());
@@ -213,6 +262,8 @@ public class DockerEurekaClientConfiguration implements
     managementUrl += ":" + defaultResult.getMetadataMap().get("management.port");
 
     managementUrl += managementContextPath;
+    logger().info(loggerPrefix + "Management url = " + managementUrl);
+
     defaultResult.getMetadataMap().put("management.url", managementUrl);
     result.setMetadataMap(defaultResult.getMetadataMap());
     result.setInstanceId(result.getInstanceId());
@@ -220,7 +271,6 @@ public class DockerEurekaClientConfiguration implements
     result.setHealthCheckUrl(defaultResult.getHealthCheckUrl());
     result.setStatusPageUrlPath(defaultResult.getStatusPageUrlPath());
     result.setStatusPageUrl(defaultResult.getStatusPageUrl());
-
     return result;
   }
 }
