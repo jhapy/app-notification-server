@@ -27,7 +27,7 @@ public class SmsReceiver implements HasLogger {
    * @param sms the received email
    * @see Sms
    */
-  @RabbitListener(queues = "sms")
+  @RabbitListener(queues = "#{smsQueue.name}")
   public void onNewSms(final Sms sms) {
     String loggerPrefix = getLoggerPrefix("onNewSms");
     logger().info(loggerPrefix + "Receiving a request from {} for sending sms to {} ",
