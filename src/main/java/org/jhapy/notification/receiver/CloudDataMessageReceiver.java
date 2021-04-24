@@ -30,7 +30,7 @@ public class CloudDataMessageReceiver implements HasLogger {
    * @param cloudDataMessage the received notification
    * @see Mail
    */
-  @RabbitListener(queues = "cloudData")
+  @RabbitListener(queues = "#{cloudDataQueue.name}")
   public void onNewCloudDataMessage(final CloudDataMessage cloudDataMessage) {
     String loggerPrefix = getLoggerPrefix("onNewCloudDataMessage");
 

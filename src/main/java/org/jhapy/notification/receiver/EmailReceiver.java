@@ -28,7 +28,7 @@ public class EmailReceiver implements HasLogger {
    * @param mail the received email
    * @see Mail
    */
-  @RabbitListener(queues = "mailbox")
+  @RabbitListener(queues = "#{mailboxQueue.name}")
   public void onNewMail(final Mail mail) {
     String loggerPrefix = getLoggerPrefix("onNewMail");
     logger().info(loggerPrefix + "Receiving a request from {} for sending email {} to {} ",
