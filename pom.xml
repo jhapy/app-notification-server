@@ -48,7 +48,7 @@
     <freemarker.version>2.3.29</freemarker.version>
     <mongobee.version>0.13</mongobee.version>
 
-    <commons-io.version>2.6</commons-io.version>
+    <commons-io.version>2.7</commons-io.version>
 
     <firebase-admin.version>6.12.2</firebase-admin.version>
     <springfox-swagger2.version>2.9.2</springfox-swagger2.version>
