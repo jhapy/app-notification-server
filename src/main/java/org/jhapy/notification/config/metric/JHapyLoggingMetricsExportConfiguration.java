@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 import org.jhapy.commons.config.AppProperties;
 import org.jhapy.commons.utils.HasLogger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -56,9 +55,9 @@ public class JHapyLoggingMetricsExportConfiguration implements HasLogger {
    */
   @Bean
   public Slf4jReporter consoleReporter(MetricRegistry dropwizardRegistry) {
-    String loggerPrefix = getLoggerPrefix("consoleReporter");
-    logger().info(loggerPrefix + "Initializing Metrics Log reporting");
-    Marker metricsMarker = MarkerFactory.getMarker("metrics");
+    var loggerPrefix = getLoggerPrefix("consoleReporter");
+    info(loggerPrefix, "Initializing Metrics Log reporting");
+    var metricsMarker = MarkerFactory.getMarker("metrics");
     final Slf4jReporter reporter = Slf4jReporter.forRegistry(dropwizardRegistry)
         .outputTo(LoggerFactory.getLogger("metrics"))
         .markWith(metricsMarker)

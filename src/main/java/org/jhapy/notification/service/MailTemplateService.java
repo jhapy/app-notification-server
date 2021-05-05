@@ -20,6 +20,7 @@ public interface MailTemplateService extends BaseCrudService<MailTemplate> {
 
   MailTemplate update(MailTemplate mailTemplate);
 
+  @Override
   void delete(MailTemplate mailTemplate);
 
   MailTemplate getByMailAction(String mailAction);

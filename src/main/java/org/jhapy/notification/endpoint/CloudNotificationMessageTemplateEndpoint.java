@@ -14,7 +14,6 @@ import org.jhapy.notification.service.CloudNotificationMessageTemplateService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +40,7 @@ public class CloudNotificationMessageTemplateEndpoint extends BaseEndpoint {
 
   @PostMapping(value = "/findAnyMatching")
   public ResponseEntity<ServiceResult> findAnyMatching(@RequestBody FindAnyMatchingQuery query) {
-    String loggerPrefix = getLoggerPrefix("findAnyMatching");
+    var loggerPrefix = getLoggerPrefix("findAnyMatching");
     try {
       Page<CloudNotificationMessageTemplate> result = cloudNotificationMessageTemplateService
           .findAnyMatching(query.getFilter(),
@@ -57,7 +56,7 @@ public class CloudNotificationMessageTemplateEndpoint extends BaseEndpoint {
 
   @PostMapping(value = "/countAnyMatching")
   public ResponseEntity<ServiceResult> countAnyMatching(@RequestBody CountAnyMatchingQuery query) {
-    String loggerPrefix = getLoggerPrefix("countAnyMatching");
+    var loggerPrefix = getLoggerPrefix("countAnyMatching");
     try {
       return handleResult(loggerPrefix, cloudNotificationMessageTemplateService
           .countAnyMatching(query.getFilter()));
@@ -68,7 +67,7 @@ public class CloudNotificationMessageTemplateEndpoint extends BaseEndpoint {
 
   @PostMapping(value = "/getById")
   public ResponseEntity<ServiceResult> getById(@RequestBody GetByStrIdQuery query) {
-    String loggerPrefix = getLoggerPrefix("getById");
+    var loggerPrefix = getLoggerPrefix("getById");
     try {
       return handleResult(loggerPrefix, mapperFacade.map(cloudNotificationMessageTemplateService
               .load(query.getId()),
@@ -82,7 +81,7 @@ public class CloudNotificationMessageTemplateEndpoint extends BaseEndpoint {
   @PostMapping(value = "/getByCloudNotificationMessageAction")
   public ResponseEntity<ServiceResult> getByCloudNotificationMessageAction(
       @RequestBody GetByNameQuery query) {
-    String loggerPrefix = getLoggerPrefix("getByCloudNotificationMessageAction");
+    var loggerPrefix = getLoggerPrefix("getByCloudNotificationMessageAction");
     try {
       return handleResult(loggerPrefix, mapperFacade.map(cloudNotificationMessageTemplateService
               .getByCloudNotificationMessageAction(query.getName()),
@@ -96,7 +95,7 @@ public class CloudNotificationMessageTemplateEndpoint extends BaseEndpoint {
   @PostMapping(value = "/save")
   public ResponseEntity<ServiceResult> save(
       @RequestBody SaveQuery<org.jhapy.dto.domain.notification.CloudNotificationMessageTemplate> query) {
-    String loggerPrefix = getLoggerPrefix("save");
+    var loggerPrefix = getLoggerPrefix("save");
     try {
       return handleResult(loggerPrefix, mapperFacade.map(cloudNotificationMessageTemplateService
               .save(mapperFacade
@@ -111,7 +110,7 @@ public class CloudNotificationMessageTemplateEndpoint extends BaseEndpoint {
 
   @PostMapping(value = "/delete")
   public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByStrIdQuery query) {
-    String loggerPrefix = getLoggerPrefix("delete");
+    var loggerPrefix = getLoggerPrefix("delete");
     try {
       cloudNotificationMessageTemplateService.delete(query.getId());
       return handleResult(loggerPrefix);

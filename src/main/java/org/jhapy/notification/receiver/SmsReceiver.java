@@ -29,12 +29,12 @@ public class SmsReceiver implements HasLogger {
    */
   @RabbitListener(queues = "#{smsQueue.name}")
   public void onNewSms(final Sms sms) {
-    String loggerPrefix = getLoggerPrefix("onNewSms");
-    logger().info(loggerPrefix + "Receiving a request from {} for sending sms to {} ",
+    var loggerPrefix = getLoggerPrefix("onNewSms");
+    info(loggerPrefix, "Receiving a request from {0} for sending sms to {1}",
         sms.getApplicationName(), sms.getPhoneNumber());
     SmsStatusEnum result = smsService
         .sendSms(sms.getPhoneNumber(), sms.getSmsAction(), sms.getAttributes(),
             sms.getIso3Language());
-    logger().info(loggerPrefix + "Sms status {} ", result);
+    info(loggerPrefix, "Sms status {0}", result);
   }
 }

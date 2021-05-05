@@ -7,7 +7,6 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Message.Builder;
 import com.google.firebase.messaging.Notification;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -39,7 +38,7 @@ public class FirebaseCloudMessagingProvider implements CloudNotificationMessageP
 
   public FirebaseCloudMessagingProvider(
       AppProperties appProperties) {
-    String loggerPrefix = getLoggerPrefix("FirebaseCloudMessagingProvider");
+    var loggerPrefix = getLoggerPrefix("FirebaseCloudMessagingProvider");
     this.appProperties = appProperties;
     FirebaseOptions options = null;
 
@@ -57,7 +56,7 @@ public class FirebaseCloudMessagingProvider implements CloudNotificationMessageP
 
       FirebaseApp.initializeApp(options);
     } else {
-      logger().error(loggerPrefix + "Firebase Config is not set, skip");
+      error(loggerPrefix, "Firebase Config is not set, skip");
     }
   }
 
@@ -70,12 +69,12 @@ public class FirebaseCloudMessagingProvider implements CloudNotificationMessageP
   }
 
   public String sendCloudDataMessage(String deviceToken, String topic, String body, String id) {
-    JsonObject jsonElement = (JsonObject) JsonParser.parseString(body);
+    var jsonElement = (JsonObject) JsonParser.parseString(body);
     Map<String, String> values = new HashMap<>();
 
     jsonElement.keySet()
         .forEach(s -> values.put(s, jsonElement.getAsJsonPrimitive(s).getAsString()));
-    Builder builder = Message.builder()
+    var builder = Message.builder()
         .putAllData(values);
     if (StringUtils.isNotBlank(deviceToken)) {
       builder.setToken(deviceToken);
@@ -83,7 +82,7 @@ public class FirebaseCloudMessagingProvider implements CloudNotificationMessageP
       builder.setTopic(topic);
     }
 
-    Message message = builder.build();
+    var message = builder.build();
     try {
       return FirebaseMessaging.getInstance().send(message);
     } catch (FirebaseMessagingException e) {
@@ -95,10 +94,10 @@ public class FirebaseCloudMessagingProvider implements CloudNotificationMessageP
   @Override
   public String sendCloudNotificationMessage(String deviceToken, String title, String body,
       String data, String id) {
-    Builder builder = Message.builder()
+    var builder = Message.builder()
         .setNotification(Notification.builder().setTitle(title).setBody(body).build());
     if (StringUtils.isNotBlank(data)) {
-      JsonObject jsonElement = (JsonObject) JsonParser.parseString(body);
+      var jsonElement = (JsonObject) JsonParser.parseString(body);
       Map<String, String> values = new HashMap<>();
 
       jsonElement.keySet()
@@ -106,7 +105,7 @@ public class FirebaseCloudMessagingProvider implements CloudNotificationMessageP
 
       builder.putAllData(values);
     }
-    Message message = builder.setToken(deviceToken).build();
+    var message = builder.setToken(deviceToken).build();
 
     try {
       return FirebaseMessaging.getInstance().send(message);

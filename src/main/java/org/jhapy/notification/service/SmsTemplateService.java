@@ -20,6 +20,7 @@ public interface SmsTemplateService extends BaseCrudService<SmsTemplate> {
 
   SmsTemplate update(SmsTemplate smsTemplate);
 
+  @Override
   void delete(SmsTemplate smsTemplate);
 
   SmsTemplate getBySmsAction(String smsAction);

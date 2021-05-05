@@ -24,6 +24,7 @@ public interface CloudNotificationMessageTemplateService extends
   CloudNotificationMessageTemplate update(
       CloudNotificationMessageTemplate cloudNotificationMessageTemplate);
 
+  @Override
   void delete(CloudNotificationMessageTemplate cloudNotificationMessageTemplate);
 
   CloudNotificationMessageTemplate getByCloudNotificationMessageAction(

@@ -14,7 +14,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
@@ -86,7 +85,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
   }
 
   Converter<Jwt, AbstractAuthenticationToken> authenticationConverter() {
-    JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+    var jwtAuthenticationConverter = new JwtAuthenticationConverter();
     jwtAuthenticationConverter
         .setJwtGrantedAuthoritiesConverter(new JwtGrantedAuthorityConverter());
     return jwtAuthenticationConverter;
@@ -94,12 +93,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   @Bean
   JwtDecoder jwtDecoder() {
-    NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder) JwtDecoders.fromOidcIssuerLocation(issuerUri);
+    var jwtDecoder = (NimbusJwtDecoder) JwtDecoders.fromOidcIssuerLocation(issuerUri);
 
-    OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator(
+    var audienceValidator = new AudienceValidator(
         appProperties.getSecurity().getOauth2().getAudience());
-    OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(issuerUri);
-    OAuth2TokenValidator<Jwt> withAudience = new DelegatingOAuth2TokenValidator<>(withIssuer,
+    var withIssuer = JwtValidators.createDefaultWithIssuer(issuerUri);
+    var withAudience = new DelegatingOAuth2TokenValidator<>(withIssuer,
         audienceValidator);
 
     jwtDecoder.setJwtValidator(withAudience);

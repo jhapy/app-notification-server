@@ -33,8 +33,8 @@ public class CloudNotificationMessageTemplateServiceImpl implements
 
   @Override
   public Page<CloudNotificationMessageTemplate> findAnyMatching(String filter, Pageable pageable) {
-    String loggerString = getLoggerPrefix("findAnyMatching");
-    logger().debug(loggerString + "In = " + filter);
+    var loggerString = getLoggerPrefix("findAnyMatching");
+    debug(loggerString, "In = " + filter);
     Page<CloudNotificationMessageTemplate> result;
 
     if (StringUtils.isNotBlank(filter)) {
@@ -43,7 +43,7 @@ public class CloudNotificationMessageTemplateServiceImpl implements
       result = cloudNotificationMessageTemplateRepository.findAll(pageable);
     }
 
-    logger().debug(loggerString + "Out = " + result);
+    debug(loggerString, "Out = " + result);
 
     return result;
   }
@@ -51,8 +51,8 @@ public class CloudNotificationMessageTemplateServiceImpl implements
 
   @Override
   public long countAnyMatching(String filter) {
-    String loggerString = getLoggerPrefix("countAnyMatching");
-    logger().debug(loggerString + "In = " + filter);
+    var loggerString = getLoggerPrefix("countAnyMatching");
+    debug(loggerString, "In = " + filter);
     long result;
     if (StringUtils.isNotBlank(filter)) {
       result = cloudNotificationMessageTemplateRepository.countByCriteria(filter);
@@ -60,7 +60,7 @@ public class CloudNotificationMessageTemplateServiceImpl implements
       result = cloudNotificationMessageTemplateRepository.count();
     }
 
-    logger().debug(loggerString + "Out = " + result);
+    debug(loggerString, "Out = " + result);
     return result;
   }
 

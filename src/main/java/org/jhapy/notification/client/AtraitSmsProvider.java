@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.jhapy.commons.utils.HasLogger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -30,7 +29,7 @@ public class AtraitSmsProvider implements SmsProvider, HasLogger {
 
   @Override
   public SmsResultCodeEnum sendSms(String to, String message, String id) {
-    String loggerPrefix = getLoggerPrefix("sendSms");
+    var loggerPrefix = getLoggerPrefix("sendSms");
     ResponseEntity<String> response;
     try {
       Map<String, String> uriParams = new HashMap<>();
@@ -42,32 +41,26 @@ public class AtraitSmsProvider implements SmsProvider, HasLogger {
       uriParams.put("shortCode", shortCode);
       response = (new RestTemplate()).getForEntity(url, String.class, uriParams);
     } catch (HttpServerErrorException | HttpClientErrorException error) {
-      HttpStatus httpStatus = error.getStatusCode();
+      var httpStatus = error.getStatusCode();
       if (httpStatus.is4xxClientError()) {
-        logger().warn(loggerPrefix + "Auth Login error .. ");
+        warn(loggerPrefix, "Auth Login error .. ");
         return SmsResultCodeEnum.ERROR_4XX;
       } else if (httpStatus.is5xxServerError()) {
-        logger().warn(loggerPrefix + "Something wrong .. " + error.getLocalizedMessage(), error);
+        warn(loggerPrefix, error, "Something wrong .. {0}", error.getLocalizedMessage());
         return SmsResultCodeEnum.ERROR_5XX;
       } else {
-        logger().warn(loggerPrefix + "Something wrong .. " + error.getLocalizedMessage(), error);
+        warn(loggerPrefix, error, "Something wrong .. {0}", error.getLocalizedMessage());
         return SmsResultCodeEnum.ERROR_OTHER;
       }
     }
-    int responseCode = Integer.parseInt(response.getBody());
-    switch (responseCode) {
-      case 0:
-        return SmsResultCodeEnum.SENT;
-      case 1:
-        return SmsResultCodeEnum.MISSING_PARAMETER;
-      case 2:
-        return SmsResultCodeEnum.INCORRECT_ID;
-      case 3:
-        return SmsResultCodeEnum.INCORRECT_SHORT_CODE;
-      case 4:
-        return SmsResultCodeEnum.INSUFFISANT_CREDIT;
-      default:
-        return SmsResultCodeEnum.UNKNOWN;
-    }
+    var responseCode = Integer.parseInt(response.getBody());
+    return switch (responseCode) {
+      case 0 -> SmsResultCodeEnum.SENT;
+      case 1 -> SmsResultCodeEnum.MISSING_PARAMETER;
+      case 2 -> SmsResultCodeEnum.INCORRECT_ID;
+      case 3 -> SmsResultCodeEnum.INCORRECT_SHORT_CODE;
+      case 4 -> SmsResultCodeEnum.INSUFFISANT_CREDIT;
+      default -> SmsResultCodeEnum.UNKNOWN;
+    };
   }
 }

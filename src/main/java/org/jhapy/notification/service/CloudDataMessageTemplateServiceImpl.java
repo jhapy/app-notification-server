@@ -31,8 +31,8 @@ public class CloudDataMessageTemplateServiceImpl implements CloudDataMessageTemp
 
   @Override
   public Page<CloudDataMessageTemplate> findAnyMatching(String filter, Pageable pageable) {
-    String loggerString = getLoggerPrefix("findAnyMatching");
-    logger().debug(loggerString + "In = " + filter);
+    var loggerString = getLoggerPrefix("findAnyMatching");
+    debug(loggerString, "In = {0}", filter);
     Page<CloudDataMessageTemplate> result;
 
     if (StringUtils.isNotBlank(filter)) {
@@ -41,7 +41,7 @@ public class CloudDataMessageTemplateServiceImpl implements CloudDataMessageTemp
       result = cloudDataMessageTemplateRepository.findAll(pageable);
     }
 
-    logger().debug(loggerString + "Out = " + result);
+    debug(loggerString, "Out = {0}", result);
 
     return result;
   }
@@ -49,8 +49,8 @@ public class CloudDataMessageTemplateServiceImpl implements CloudDataMessageTemp
 
   @Override
   public long countAnyMatching(String filter) {
-    String loggerString = getLoggerPrefix("countAnyMatching");
-    logger().debug(loggerString + "In = " + filter);
+    var loggerString = getLoggerPrefix("countAnyMatching");
+    debug(loggerString, "In = {0}", filter);
     long result;
     if (StringUtils.isNotBlank(filter)) {
       result = cloudDataMessageTemplateRepository.countByCriteria(filter);
@@ -58,7 +58,7 @@ public class CloudDataMessageTemplateServiceImpl implements CloudDataMessageTemp
       result = cloudDataMessageTemplateRepository.count();
     }
 
-    logger().debug(loggerString + "Out = " + result);
+    debug(loggerString, "Out = {0}", result);
     return result;
   }
 

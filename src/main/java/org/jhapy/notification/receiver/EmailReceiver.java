@@ -30,13 +30,13 @@ public class EmailReceiver implements HasLogger {
    */
   @RabbitListener(queues = "#{mailboxQueue.name}")
   public void onNewMail(final Mail mail) {
-    String loggerPrefix = getLoggerPrefix("onNewMail");
-    logger().info(loggerPrefix + "Receiving a request from {} for sending email {} to {} ",
+    var loggerPrefix = getLoggerPrefix("onNewMail");
+    info(loggerPrefix, "Receiving a request from {0} for sending email {1} to {2}",
         mail.getApplicationName(), mail.getSubject(), mail.getTo());
     MailStatusEnum result = mailService
         .sendEmail(mail.getTo(), mail.getMailAction(),
             mail.getAttributes(), mail.getAttachements(),
             mail.getIso3Language());
-    logger().info(loggerPrefix + "Mail status {} ", result);
+    info(loggerPrefix, "Mail status {0}", result);
   }
 }

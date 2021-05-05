@@ -16,7 +16,7 @@ public class MailInitialValuesChangeLog {
 
   @ChangeSet(order = "001", id = "insertVerificationCodeEmail", author = "jHapy Dev1")
   public void insertVerificationCodeEmail(MongockTemplate mongoTemplate) {
-    MailTemplate notificationMailTemplate = new MailTemplate();
+    var notificationMailTemplate = new MailTemplate();
     notificationMailTemplate.setMailAction(MailActionEnum.EMAIL_VERIFICATION.name());
     notificationMailTemplate.setBody("Hi,<br/>"
         + "<br/>"
@@ -33,7 +33,7 @@ public class MailInitialValuesChangeLog {
 
   @ChangeSet(order = "002", id = "insertVerificationCodeSms", author = "jHapy Dev1")
   public void insertVerificationCodeSms(MongockTemplate mongoTemplate) {
-    SmsTemplate notificationSmsTemplate = new SmsTemplate();
+    var notificationSmsTemplate = new SmsTemplate();
     notificationSmsTemplate.setSmsAction(SmsActionEnum.SMS_VERIFICATION.name());
     notificationSmsTemplate.setBody("Code jHapy ${verificationCode}");
     notificationSmsTemplate.setIso3Language(Locale.ENGLISH.getLanguage());
@@ -44,7 +44,7 @@ public class MailInitialValuesChangeLog {
 
   @ChangeSet(order = "003", id = "insertForgetPasswordEmail", author = "jHapy Dev1")
   public void insertForgetPasswordEmail(MongockTemplate mongoTemplate) {
-    MailTemplate notificationMailTemplate = new MailTemplate();
+    var notificationMailTemplate = new MailTemplate();
     notificationMailTemplate.setMailAction(MailActionEnum.EMAIL_FORGET_PASSWORD.name());
     notificationMailTemplate.setBody("Hi,<br/>"
         + "<br/>"
@@ -59,7 +59,7 @@ public class MailInitialValuesChangeLog {
 
   @ChangeSet(order = "004", id = "insertForgetPasswordSms", author = "jHapy Dev1")
   public void insertForgetPasswordSms(MongockTemplate mongoTemplate) {
-    SmsTemplate notificationSmsTemplate = new SmsTemplate();
+    var notificationSmsTemplate = new SmsTemplate();
     notificationSmsTemplate.setSmsAction(SmsActionEnum.SMS_FORGET_PASSWORD.name());
     notificationSmsTemplate.setBody("Reset Code for JHapy : ${resetCode}");
     notificationSmsTemplate.setIso3Language(Locale.ENGLISH.getLanguage());

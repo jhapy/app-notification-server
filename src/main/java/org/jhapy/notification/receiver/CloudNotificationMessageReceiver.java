@@ -33,18 +33,17 @@ public class CloudNotificationMessageReceiver implements HasLogger {
   @RabbitListener(queues = "#{cloudNotificationQueue.name}")
   public void onNewCloudNotificationMessage(
       final CloudNotificationMessage cloudNotificationMessage) {
-    String loggerPrefix = getLoggerPrefix("onNewCloudNotificationMessage");
+    var loggerPrefix = getLoggerPrefix("onNewCloudNotificationMessage");
 
-    logger()
-        .info(loggerPrefix + "Receiving a request from {} for sending cloud notification {} to {} ",
-            cloudNotificationMessage.getApplicationName(), cloudNotificationMessage.getTitle(),
-            cloudNotificationMessage.getDeviceToken());
+    info(loggerPrefix, "Receiving a request from {0} for sending cloud notification {1} to {2}",
+        cloudNotificationMessage.getApplicationName(), cloudNotificationMessage.getTitle(),
+        cloudNotificationMessage.getDeviceToken());
     CloudNotificationMessageStatusEnum result = cloudNotificationMessageService
         .sendCloudNotificationMessage(cloudNotificationMessage.getDeviceToken(),
             cloudNotificationMessage.getCloudNotificationMessageAction(),
             cloudNotificationMessage.getTitle(), cloudNotificationMessage.getBody(),
             cloudNotificationMessage.getData(), cloudNotificationMessage.getAttributes(),
             cloudNotificationMessage.getIso3Language());
-    logger().info(loggerPrefix + "Cloud Notification Message status {} ", result);
+    info(loggerPrefix, "Cloud Notification Message status {0}", result);
   }
 }

@@ -32,9 +32,9 @@ public class CloudDataMessageReceiver implements HasLogger {
    */
   @RabbitListener(queues = "#{cloudDataQueue.name}")
   public void onNewCloudDataMessage(final CloudDataMessage cloudDataMessage) {
-    String loggerPrefix = getLoggerPrefix("onNewCloudDataMessage");
+    var loggerPrefix = getLoggerPrefix("onNewCloudDataMessage");
 
-    logger().info(loggerPrefix + "Receiving a request from {} for sending cloud data {} to {} ",
+    info(loggerPrefix, "Receiving a request from {0} for sending cloud data {1} to {2}",
         cloudDataMessage.getApplicationName(), cloudDataMessage.getData(),
         cloudDataMessage.getDeviceToken());
     CloudDataMessageStatusEnum result = cloudDataMessageService
@@ -43,6 +43,6 @@ public class CloudDataMessageReceiver implements HasLogger {
             cloudDataMessage.getTopic(),
             cloudDataMessage.getData(), cloudDataMessage.getAttributes(),
             cloudDataMessage.getIso3Language());
-    logger().info(loggerPrefix + "Cloud Data Message status {} ", result);
+    info(loggerPrefix, "Cloud Data Message status {0}", result);
   }
 }

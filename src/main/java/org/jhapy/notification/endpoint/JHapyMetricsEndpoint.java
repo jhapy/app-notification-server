@@ -15,8 +15,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jhapy.commons.utils.HasLogger;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.boot.actuate.endpoint.web.annotation.WebEndpoint;
 
@@ -24,16 +23,14 @@ import org.springframework.boot.actuate.endpoint.web.annotation.WebEndpoint;
  * <p>JHapyMetricsEndpoint class.</p>
  */
 @WebEndpoint(id = "jhametrics")
-public class JHapyMetricsEndpoint {
+public class JHapyMetricsEndpoint implements HasLogger {
 
   private final MeterRegistry meterRegistry;
 
-  private final Logger logger = LoggerFactory.getLogger(JHapyMetricsEndpoint.class);
-
   /**
-   * Constant <code>MISSING_NAME_TAG_MESSAGE="Missing name tag for metric {}"</code>
+   * Constant <code>MISSING_NAME_TAG_MESSAGE="Missing name tag for metric {0}"</code>
    */
-  public static final String MISSING_NAME_TAG_MESSAGE = "Missing name tag for metric {}";
+  public static final String MISSING_NAME_TAG_MESSAGE = "Missing name tag for metric {0}";
 
   /**
    * <p>Constructor for JHapyMetricsEndpoint.</p>
@@ -122,14 +119,14 @@ public class JHapyMetricsEndpoint {
         counter -> resultsGarbageCollector.put(counter.getId().getName(), counter.count()));
 
     gauges = Search.in(this.meterRegistry).name(s -> s.contains("jvm.classes.loaded")).gauges();
-    Double classesLoaded = gauges.stream().map(Gauge::value).reduce((x, y) -> (x + y))
+    Double classesLoaded = gauges.stream().map(Gauge::value).reduce(Double::sum)
         .orElse((double) 0);
     resultsGarbageCollector.put("classesLoaded", classesLoaded);
 
     Collection<FunctionCounter> functionCounters = Search.in(this.meterRegistry)
         .name(s -> s.contains("jvm.classes.unloaded")).functionCounters();
     Double classesUnloaded = functionCounters.stream().map(FunctionCounter::count)
-        .reduce((x, y) -> (x + y)).orElse((double) 0);
+        .reduce(Double::sum).orElse((double) 0);
     resultsGarbageCollector.put("classesUnloaded", classesUnloaded);
 
     return resultsGarbageCollector;
@@ -138,10 +135,10 @@ public class JHapyMetricsEndpoint {
   private Map<String, Map<String, Number>> databaseMetrics() {
     Map<String, Map<String, Number>> resultsDatabase = new HashMap<>();
 
-    Collection<Timer> timers = Search.in(this.meterRegistry).name(s -> s.contains("hikari"))
+    var timers = Search.in(this.meterRegistry).name(s -> s.contains("hikari"))
         .timers();
     timers.forEach(timer -> {
-      String key = timer.getId().getName().substring(timer.getId().getName().lastIndexOf('.') + 1);
+      var key = timer.getId().getName().substring(timer.getId().getName().lastIndexOf('.') + 1);
 
       resultsDatabase.putIfAbsent(key, new HashMap<>());
       resultsDatabase.get(key).put("count", timer.count());
@@ -149,17 +146,17 @@ public class JHapyMetricsEndpoint {
       resultsDatabase.get(key).put("totalTime", timer.totalTime(TimeUnit.MILLISECONDS));
       resultsDatabase.get(key).put("mean", timer.mean(TimeUnit.MILLISECONDS));
 
-      ValueAtPercentile[] percentiles = timer.takeSnapshot().percentileValues();
+      var percentiles = timer.takeSnapshot().percentileValues();
       for (ValueAtPercentile percentile : percentiles) {
         resultsDatabase.get(key)
             .put(String.valueOf(percentile.percentile()), percentile.value(TimeUnit.MILLISECONDS));
       }
     });
 
-    Collection<Gauge> gauges = Search.in(this.meterRegistry).name(s -> s.contains("hikari"))
+    var gauges = Search.in(this.meterRegistry).name(s -> s.contains("hikari"))
         .gauges();
     gauges.forEach(gauge -> {
-      String key = gauge.getId().getName().substring(gauge.getId().getName().lastIndexOf('.') + 1);
+      var key = gauge.getId().getName().substring(gauge.getId().getName().lastIndexOf('.') + 1);
       resultsDatabase.putIfAbsent(key, new HashMap<>());
       resultsDatabase.get(key).put("value", gauge.value());
     });
@@ -168,10 +165,10 @@ public class JHapyMetricsEndpoint {
   }
 
   private Map<String, Map> serviceMetrics() {
-    Collection<String> crudOperation = Arrays.asList("GET", "POST", "PUT", "DELETE");
+    var crudOperation = Arrays.asList("GET", "POST", "PUT", "DELETE");
 
     Set<String> uris = new HashSet<>();
-    Collection<Timer> timers = this.meterRegistry.find("http.server.requests").timers();
+    var timers = this.meterRegistry.find("http.server.requests").timers();
 
     timers.forEach(timer -> uris.add(timer.getId().getTag("uri")));
     Map<String, Map> resultsHttpPerUri = new HashMap<>();
@@ -182,15 +179,15 @@ public class JHapyMetricsEndpoint {
       crudOperation.forEach(operation -> {
         Map<String, Number> resultsPerUriPerCrudOperation = new HashMap<>();
 
-        Collection<Timer> httpTimersStream = this.meterRegistry.find("http.server.requests")
+        var httpTimersStream = this.meterRegistry.find("http.server.requests")
             .tags("uri", uri, "method", operation).timers();
-        long count = httpTimersStream.stream().map(Timer::count).reduce((x, y) -> x + y).orElse(0L);
+        var count = httpTimersStream.stream().map(Timer::count).reduce(Long::sum).orElse(0L);
 
         if (count != 0) {
-          double max = httpTimersStream.stream().map(x -> x.max(TimeUnit.MILLISECONDS))
+          var max = httpTimersStream.stream().map(x -> x.max(TimeUnit.MILLISECONDS))
               .reduce((x, y) -> x > y ? x : y).orElse((double) 0);
-          double totalTime = httpTimersStream.stream().map(x -> x.totalTime(TimeUnit.MILLISECONDS))
-              .reduce((x, y) -> (x + y)).orElse((double) 0);
+          var totalTime = httpTimersStream.stream().map(x -> x.totalTime(TimeUnit.MILLISECONDS))
+              .reduce(Double::sum).orElse((double) 0);
 
           resultsPerUriPerCrudOperation.put("count", count);
           resultsPerUriPerCrudOperation.put("max", max);
@@ -207,13 +204,14 @@ public class JHapyMetricsEndpoint {
   }
 
   private Map<String, Map<String, Number>> cacheMetrics() {
+    String loggerPrefix = getLoggerPrefix("cacheMetrics");
     Map<String, Map<String, Number>> resultsCache = new HashMap<>();
 
-    Collection<FunctionCounter> counters = Search.in(this.meterRegistry)
+    var counters = Search.in(this.meterRegistry)
         .name(s -> s.contains("cache") && !s.contains("hibernate")).functionCounters();
     counters.forEach(counter -> {
-      String key = counter.getId().getName();
-      String name = counter.getId().getTag("name");
+      var key = counter.getId().getName();
+      var name = counter.getId().getTag("name");
       if (name != null) {
         resultsCache.putIfAbsent(name, new HashMap<>());
         if (counter.getId().getTag("result") != null) {
@@ -221,20 +219,20 @@ public class JHapyMetricsEndpoint {
         }
         resultsCache.get(name).put(key, counter.count());
       } else {
-        logger.warn(MISSING_NAME_TAG_MESSAGE, key);
+        warn(loggerPrefix, MISSING_NAME_TAG_MESSAGE, key);
       }
     });
 
-    Collection<Gauge> gauges = Search.in(this.meterRegistry).name(s -> s.contains("cache"))
+    var gauges = Search.in(this.meterRegistry).name(s -> s.contains("cache"))
         .gauges();
     gauges.forEach(gauge -> {
-      String key = gauge.getId().getName();
-      String name = gauge.getId().getTag("name");
+      var key = gauge.getId().getName();
+      var name = gauge.getId().getTag("name");
       if (name != null) {
         resultsCache.putIfAbsent(name, new HashMap<>());
         resultsCache.get(name).put(key, gauge.value());
       } else {
-        logger.warn(MISSING_NAME_TAG_MESSAGE, key);
+        warn(loggerPrefix, MISSING_NAME_TAG_MESSAGE, key);
       }
     });
     return resultsCache;
@@ -243,26 +241,26 @@ public class JHapyMetricsEndpoint {
   private Map<String, Map<String, Number>> jvmMemoryMetrics() {
     Map<String, Map<String, Number>> resultsJvm = new HashMap<>();
 
-    Search jvmUsedSearch = Search.in(this.meterRegistry).name(s -> s.contains("jvm.memory.used"));
+    var jvmUsedSearch = Search.in(this.meterRegistry).name(s -> s.contains("jvm.memory.used"));
 
-    Collection<Gauge> gauges = jvmUsedSearch.gauges();
+    var gauges = jvmUsedSearch.gauges();
     gauges.forEach(gauge -> {
-      String key = gauge.getId().getTag("id");
+      var key = gauge.getId().getTag("id");
       resultsJvm.putIfAbsent(key, new HashMap<>());
       resultsJvm.get(key).put("used", gauge.value());
     });
 
-    Search jvmMaxSearch = Search.in(this.meterRegistry).name(s -> s.contains("jvm.memory.max"));
+    var jvmMaxSearch = Search.in(this.meterRegistry).name(s -> s.contains("jvm.memory.max"));
 
     gauges = jvmMaxSearch.gauges();
     gauges.forEach(gauge -> {
-      String key = gauge.getId().getTag("id");
+      var key = gauge.getId().getTag("id");
       resultsJvm.get(key).put("max", gauge.value());
     });
 
     gauges = Search.in(this.meterRegistry).name(s -> s.contains("jvm.memory.committed")).gauges();
     gauges.forEach(gauge -> {
-      String key = gauge.getId().getTag("id");
+      var key = gauge.getId().getTag("id");
       resultsJvm.get(key).put("committed", gauge.value());
     });
 
@@ -271,7 +269,7 @@ public class JHapyMetricsEndpoint {
 
   private Map<String, Map> httpRequestsMetrics() {
     Set<String> statusCode = new HashSet<>();
-    Collection<Timer> timers = this.meterRegistry.find("http.server.requests").timers();
+    var timers = this.meterRegistry.find("http.server.requests").timers();
 
     timers.forEach(timer -> statusCode.add(timer.getId().getTag("status")));
 
@@ -281,13 +279,13 @@ public class JHapyMetricsEndpoint {
     statusCode.forEach(code -> {
       Map<String, Number> resultsPerCode = new HashMap<>();
 
-      Collection<Timer> httpTimersStream = this.meterRegistry.find("http.server.requests")
+      var httpTimersStream = this.meterRegistry.find("http.server.requests")
           .tag("status", code).timers();
-      long count = httpTimersStream.stream().map(Timer::count).reduce((x, y) -> x + y).orElse(0L);
-      double max = httpTimersStream.stream().map(x -> x.max(TimeUnit.MILLISECONDS))
+      var count = httpTimersStream.stream().map(Timer::count).reduce(Long::sum).orElse(0L);
+      var max = httpTimersStream.stream().map(x -> x.max(TimeUnit.MILLISECONDS))
           .reduce((x, y) -> x > y ? x : y).orElse((double) 0);
-      double totalTime = httpTimersStream.stream().map(x -> x.totalTime(TimeUnit.MILLISECONDS))
-          .reduce((x, y) -> (x + y)).orElse((double) 0);
+      var totalTime = httpTimersStream.stream().map(x -> x.totalTime(TimeUnit.MILLISECONDS))
+          .reduce(Double::sum).orElse((double) 0);
 
       resultsPerCode.put("count", count);
       resultsPerCode.put("max", max);
@@ -299,7 +297,7 @@ public class JHapyMetricsEndpoint {
     resultsHttp.put("percode", resultsHttpPerCode);
 
     timers = this.meterRegistry.find("http.server.requests").timers();
-    long countAllrequests = timers.stream().map(Timer::count).reduce((x, y) -> x + y).orElse(0L);
+    var countAllrequests = timers.stream().map(Timer::count).reduce(Long::sum).orElse(0L);
     Map<String, Number> resultsHTTPAll = new HashMap<>();
     resultsHTTPAll.put("count", countAllrequests);
 

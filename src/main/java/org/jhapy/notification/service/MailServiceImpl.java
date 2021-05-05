@@ -3,11 +3,8 @@ package org.jhapy.notification.service;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.notification.domain.Mail;
@@ -51,8 +48,8 @@ public class MailServiceImpl implements MailService, HasLogger {
 
   @Override
   public Page<Mail> findAnyMatching(String filter, Pageable pageable) {
-    String loggerString = getLoggerPrefix("findAnyMatching");
-    logger().debug(loggerString + "In = " + filter);
+    var loggerString = getLoggerPrefix("findAnyMatching");
+    debug(loggerString, "In = {0}", filter);
     Page<Mail> result;
 
     if (StringUtils.isNotBlank(filter)) {
@@ -61,7 +58,7 @@ public class MailServiceImpl implements MailService, HasLogger {
       result = mailMessageRepository.findAll(pageable);
     }
 
-    logger().debug(loggerString + "Out = " + result);
+    debug(loggerString, "Out = {0}", result);
 
     return result;
   }
@@ -69,8 +66,8 @@ public class MailServiceImpl implements MailService, HasLogger {
 
   @Override
   public long countAnyMatching(String filter) {
-    String loggerString = getLoggerPrefix("countAnyMatching");
-    logger().debug(loggerString + "In = " + filter);
+    var loggerString = getLoggerPrefix("countAnyMatching");
+    debug(loggerString, "In = {0}", filter);
     long result;
     if (StringUtils.isNotBlank(filter)) {
       result = mailMessageRepository.countByCriteria(filter);
@@ -78,13 +75,13 @@ public class MailServiceImpl implements MailService, HasLogger {
       result = mailMessageRepository.count();
     }
 
-    logger().debug(loggerString + "Out = " + result);
+    debug(loggerString, "Out = {0}", result);
     return result;
   }
 
   @Override
   public void sendSimpleMail(String to, String subject, String text) {
-    SimpleMailMessage message = new SimpleMailMessage();
+    var message = new SimpleMailMessage();
     message.setTo(to);
     message.setSubject(subject);
     message.setText(text);
@@ -95,22 +92,22 @@ public class MailServiceImpl implements MailService, HasLogger {
   @Override
   public MailStatusEnum sendEmail(String to, String emailAction, Map<String, String> attributes,
       Map<String, byte[]> attachments, String iso3Language) {
-    String loggerPrefix = getLoggerPrefix("sendEmail");
+    var loggerPrefix = getLoggerPrefix("sendEmail");
 
-    Optional<MailTemplate> _mailTemplate = mailTemplateService
+    var _mailTemplate = mailTemplateService
         .findByMailAction(emailAction, iso3Language);
 
     if (_mailTemplate.isPresent()) {
-      MailTemplate template = _mailTemplate.get();
-      logger().trace(loggerPrefix + "Template found = {}", template);
+      var template = _mailTemplate.get();
+      trace(loggerPrefix, "Template found = {0}", template);
 
       if (StringUtils.isNotBlank(to)) {
         return sendAndSave(to, template, attributes, attachments);
       } else {
-        logger().warn(loggerPrefix + "No email to send.");
+        warn(loggerPrefix, "No email to send.");
       }
     } else {
-      logger().error(loggerPrefix + "Template not found = {}", emailAction);
+      error(loggerPrefix, "Template not found = {0}", emailAction);
     }
     return null;
   }
@@ -118,28 +115,28 @@ public class MailServiceImpl implements MailService, HasLogger {
   private MailStatusEnum sendAndSave(String to, MailTemplate mailTemplate,
       Map<String, String> attributes,
       Map<String, byte[]> attachments) {
-    String loggerPrefix = getLoggerPrefix("sendAndSave");
-    logger().trace(loggerPrefix + "Template = {}, attributes = {}", mailTemplate, attributes);
-    Mail mailMessage = new Mail();
+    var loggerPrefix = getLoggerPrefix("sendAndSave");
+    trace(loggerPrefix, "Template = {0}, attributes = {1}", mailTemplate, attributes);
+    var mailMessage = new Mail();
     mailMessage.setMailStatus(MailStatusEnum.NOT_SENT);
     try {
-      logger().debug(loggerPrefix + "Building the message...");
+      debug(loggerPrefix, "Building the message...");
 
-      Template bodyTemplate = new Template(
+      var bodyTemplate = new Template(
           null,
           mailTemplate.getBody(),
           new Configuration(Configuration.VERSION_2_3_28)
       );
 
-      String body = FreeMarkerTemplateUtils.processTemplateIntoString(bodyTemplate, attributes);
+      var body = FreeMarkerTemplateUtils.processTemplateIntoString(bodyTemplate, attributes);
 
-      Template subjectTemplate = new Template(
+      var subjectTemplate = new Template(
           null,
           mailTemplate.getSubject(),
           new Configuration(Configuration.VERSION_2_3_28)
       );
 
-      String subject = FreeMarkerTemplateUtils
+      var subject = FreeMarkerTemplateUtils
           .processTemplateIntoString(subjectTemplate, attributes);
 
       // initialize saved mail data
@@ -153,11 +150,11 @@ public class MailServiceImpl implements MailService, HasLogger {
 
       sendMail(mailMessage);
     } catch (Exception e) {
-      logger().error(loggerPrefix + "Error while preparing mail = {}, message = {}",
+      error(loggerPrefix, "Error while preparing mail = {0}, message = {1}",
           mailMessage.getMailAction(), e.getMessage());
       mailMessage.setMailStatus(MailStatusEnum.ERROR);
     } finally {
-      logger().debug(loggerPrefix + "Email sent status = {}", mailMessage.getMailStatus());
+      debug(loggerPrefix, "Email sent status = {0}", mailMessage.getMailStatus());
     }
     mailMessage = mailMessageRepository.save(mailMessage);
 
@@ -165,10 +162,10 @@ public class MailServiceImpl implements MailService, HasLogger {
   }
 
   private MailStatusEnum sendMail(Mail mail) {
-    String loggerPrefix = getLoggerPrefix("sendMailMessage");
+    var loggerPrefix = getLoggerPrefix("sendMailMessage");
     try {
-      MimeMessage message = emailSender.createMimeMessage();
-      MimeMessageHelper helper = new MimeMessageHelper(message,
+      var message = emailSender.createMimeMessage();
+      var helper = new MimeMessageHelper(message,
           MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
           StandardCharsets.UTF_8.name());
       helper.setFrom(mail.getFrom());
@@ -184,14 +181,13 @@ public class MailServiceImpl implements MailService, HasLogger {
               new ByteArrayResource(mail.getAttachements().get(attachment)));
         }
       }
-      logger().debug(loggerPrefix + "Sending...");
+      debug(loggerPrefix, "Sending...");
       emailSender.send(message);
       mail.setErrorMessage(null);
       mail.setMailStatus(MailStatusEnum.SENT);
     } catch (MailException | MessagingException mailException) {
-      logger()
-          .error(loggerPrefix + "Error while sending mail = {}, message = {}", mail.getMailAction(),
-              mailException.getMessage());
+      error(loggerPrefix, "Error while sending mail = {0}, message = {1}", mail.getMailAction(),
+          mailException.getMessage());
       if (mail.getNbRetry() >= 3) {
         mail.setErrorMessage(mailException.getMessage());
         mail.setMailStatus(MailStatusEnum.ERROR);
@@ -208,7 +204,7 @@ public class MailServiceImpl implements MailService, HasLogger {
   @Override
   @Transactional
   public void processNotSentEmails() {
-    List<Mail> unsentEmails = mailMessageRepository
+    var unsentEmails = mailMessageRepository
         .findByMailStatusIn(MailStatusEnum.NOT_SENT, MailStatusEnum.RETRYING);
     unsentEmails.forEach(mail -> {
       sendMail(mail);

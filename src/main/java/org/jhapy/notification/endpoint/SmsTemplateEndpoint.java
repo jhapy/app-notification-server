@@ -14,7 +14,6 @@ import org.jhapy.notification.service.SmsTemplateService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +38,7 @@ public class SmsTemplateEndpoint extends BaseEndpoint {
 
   @PostMapping(value = "/findAnyMatching")
   public ResponseEntity<ServiceResult> findAnyMatching(@RequestBody FindAnyMatchingQuery query) {
-    String loggerPrefix = getLoggerPrefix("findAnyMatching");
+    var loggerPrefix = getLoggerPrefix("findAnyMatching");
     try {
       Page<SmsTemplate> result = smsTemplateService
           .findAnyMatching(query.getFilter(),
@@ -55,7 +54,7 @@ public class SmsTemplateEndpoint extends BaseEndpoint {
 
   @PostMapping(value = "/countAnyMatching")
   public ResponseEntity<ServiceResult> countAnyMatching(@RequestBody CountAnyMatchingQuery query) {
-    String loggerPrefix = getLoggerPrefix("countAnyMatching");
+    var loggerPrefix = getLoggerPrefix("countAnyMatching");
     try {
       return handleResult(loggerPrefix, smsTemplateService
           .countAnyMatching(query.getFilter()));
@@ -66,7 +65,7 @@ public class SmsTemplateEndpoint extends BaseEndpoint {
 
   @PostMapping(value = "/getById")
   public ResponseEntity<ServiceResult> getById(@RequestBody GetByStrIdQuery query) {
-    String loggerPrefix = getLoggerPrefix("getById");
+    var loggerPrefix = getLoggerPrefix("getById");
     try {
       return handleResult(loggerPrefix, mapperFacade.map(smsTemplateService
               .load(query.getId()), org.jhapy.dto.domain.notification.SmsTemplate.class,
@@ -78,7 +77,7 @@ public class SmsTemplateEndpoint extends BaseEndpoint {
 
   @PostMapping(value = "/getBySmsAction")
   public ResponseEntity<ServiceResult> getBySmsAction(@RequestBody GetByNameQuery query) {
-    String loggerPrefix = getLoggerPrefix("getBySmsAction");
+    var loggerPrefix = getLoggerPrefix("getBySmsAction");
     try {
       return handleResult(loggerPrefix, mapperFacade.map(smsTemplateService
               .getBySmsAction(query.getName()), org.jhapy.dto.domain.notification.SmsTemplate.class,
@@ -91,7 +90,7 @@ public class SmsTemplateEndpoint extends BaseEndpoint {
   @PostMapping(value = "/save")
   public ResponseEntity<ServiceResult> save(
       @RequestBody SaveQuery<org.jhapy.dto.domain.notification.SmsTemplate> query) {
-    String loggerPrefix = getLoggerPrefix("save");
+    var loggerPrefix = getLoggerPrefix("save");
     try {
       return handleResult(loggerPrefix, mapperFacade.map(smsTemplateService
               .save(mapperFacade
@@ -104,7 +103,7 @@ public class SmsTemplateEndpoint extends BaseEndpoint {
 
   @PostMapping(value = "/delete")
   public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByStrIdQuery query) {
-    String loggerPrefix = getLoggerPrefix("delete");
+    var loggerPrefix = getLoggerPrefix("delete");
     try {
       smsTemplateService.delete(query.getId());
       return handleResult(loggerPrefix);

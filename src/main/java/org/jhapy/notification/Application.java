@@ -8,15 +8,14 @@ import java.util.Collection;
 import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.DefaultProfileUtil;
+import org.jhapy.commons.utils.HasLogger;
+import org.jhapy.commons.utils.HasLoggerStatic;
 import org.jhapy.commons.utils.SpringProfileConstants;
 import org.jhapy.notification.config.AppProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
@@ -32,9 +31,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @EnableConfigurationProperties(AppProperties.class)
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @ComponentScan({"org.jhapy.notification", "org.jhapy.commons"})
-public class Application implements InitializingBean {
-
-  private static final Logger logger = LoggerFactory.getLogger(Application.class);
+public class Application implements InitializingBean, HasLogger {
 
   private final Environment env;
   private final AppProperties appProperties;
@@ -45,33 +42,38 @@ public class Application implements InitializingBean {
   }
 
   public static void main(String[] args) {
-    SpringApplication app = new SpringApplication(Application.class);
+    var app = new SpringApplication(Application.class);
     DefaultProfileUtil.addDefaultProfile(app);
-    Environment env = app.run(args).getEnvironment();
+    var env = app.run(args).getEnvironment();
     logApplicationStartup(env);
   }
 
   private static void logApplicationStartup(Environment env) {
-    String protocol = "http";
+    String loggerPrefix = HasLoggerStatic.getLoggerPrefix("logApplicationStartup");
+    var protocol = "http";
     if (env.getProperty("server.ssl.key-store") != null) {
       protocol = "https";
     }
-    String serverPort = env.getProperty("server.port");
-    String contextPath = env.getProperty("server.servlet.context-path");
+    var serverPort = env.getProperty("server.port");
+    var contextPath = env.getProperty("server.servlet.context-path");
     if (StringUtils.isBlank(contextPath)) {
       contextPath = "/";
     }
-    String hostAddress = "localhost";
+    var hostAddress = "localhost";
     try {
       hostAddress = InetAddress.getLocalHost().getHostAddress();
     } catch (UnknownHostException e) {
-      logger.warn("The host name could not be determined, using `localhost` as fallback");
+      HasLoggerStatic.warn(Application.class, loggerPrefix,
+          "The host name could not be determined, using `localhost` as fallback");
     }
-    logger.info("\n----------------------------------------------------------\n\t" +
-            "Application '{}' is running! Access URLs:\n\t" +
-            "Local: \t\t{}://localhost:{}{}\n\t" +
-            "External: \t{}://{}:{}{}\n\t" +
-            "Profile(s): \t{}\n----------------------------------------------------------",
+    HasLoggerStatic.info(Application.class, loggerPrefix, """
+
+            ----------------------------------------------------------
+            \tApplication '{}' is running! Access URLs:
+            \tLocal: \t\t{}://localhost:{}{}
+            \tExternal: \t{}://{}:{}{}
+            \tProfile(s): \t{}
+            ----------------------------------------------------------""",
         env.getProperty("spring.application.name"),
         protocol,
         serverPort,
@@ -82,35 +84,41 @@ public class Application implements InitializingBean {
         contextPath,
         env.getActiveProfiles());
 
-    String configServerStatus = env.getProperty("configserver.status");
+    var configServerStatus = env.getProperty("configserver.status");
     if (configServerStatus == null) {
       configServerStatus = "Not found or not setup for this application";
     }
-    logger.info("\n----------------------------------------------------------\n\t" +
-            "Config Server: \t{}\n----------------------------------------------------------",
+    HasLoggerStatic.info(Application.class, loggerPrefix, """
+
+            ----------------------------------------------------------
+            \tConfig Server: \t{}
+            ----------------------------------------------------------""",
         configServerStatus);
   }
 
   @Override
   public void afterPropertiesSet() throws Exception {
+    String loggerPrefix = getLoggerPrefix("afterPropertiesSet");
     Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
     if (activeProfiles.contains(SpringProfileConstants.SPRING_PROFILE_DEVELOPMENT) && activeProfiles
         .contains(SpringProfileConstants.SPRING_PROFILE_PRODUCTION)) {
-      logger.error("You have misconfigured your application! It should not run " +
+      error(loggerPrefix, "You have misconfigured your application! It should not run " +
           "with both the 'dev' and 'prod' profiles at the same time.");
     }
   }
 
   @PostConstruct
   void postConstruct() {
+    String loggerPrefix = getLoggerPrefix("postConstruct");
     if (StringUtils.isNotBlank(appProperties.getSecurity().getTrustStore().getTrustStorePath())) {
-      File trustStoreFilePath = new File(
+      var trustStoreFilePath = new File(
           appProperties.getSecurity().getTrustStore().getTrustStorePath());
-      String tsp = trustStoreFilePath.getAbsolutePath();
-      logger.info("Use trustStore " + tsp + ", with password : " + appProperties.getSecurity()
-          .getTrustStore().getTrustStorePassword() + ", with type : " + appProperties.getSecurity()
-          .getTrustStore()
-          .getTrustStoreType());
+      var tsp = trustStoreFilePath.getAbsolutePath();
+      info(loggerPrefix, "Use trustStore {0}, with password : {1}, with type : {2}", tsp,
+          appProperties.getSecurity()
+              .getTrustStore().getTrustStorePassword(), appProperties.getSecurity()
+              .getTrustStore()
+              .getTrustStoreType());
 
       System.setProperty("javax.net.ssl.trustStore", tsp);
       System.setProperty("javax.net.ssl.trustStorePassword",
@@ -121,11 +129,12 @@ public class Application implements InitializingBean {
       }
     }
     if (StringUtils.isNotBlank(appProperties.getSecurity().getKeyStore().getKeyStorePath())) {
-      File keyStoreFilePath = new File(appProperties.getSecurity().getKeyStore().getKeyStorePath());
-      String ksp = keyStoreFilePath.getAbsolutePath();
-      logger.info(
-          "Use keyStore " + ksp + ", with password : " + appProperties.getSecurity().getKeyStore()
-              .getKeyStorePassword() + ", with type : " + appProperties.getSecurity().getKeyStore()
+      var keyStoreFilePath = new File(appProperties.getSecurity().getKeyStore().getKeyStorePath());
+      var ksp = keyStoreFilePath.getAbsolutePath();
+      info(loggerPrefix, "Use keyStore {0}, with password : {1}, with type : {2}", ksp,
+          appProperties.getSecurity()
+              .getKeyStore().getKeyStorePassword(), appProperties.getSecurity()
+              .getKeyStore()
               .getKeyStoreType());
 
       System.setProperty("javax.net.ssl.keyStore", ksp);

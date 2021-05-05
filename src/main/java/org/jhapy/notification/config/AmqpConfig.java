@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class AmqpConfig {
+
   @Bean
   public Queue cloudDataQueue() {
     return new Queue("notification.cloudData", true);
@@ -18,17 +19,17 @@ public class AmqpConfig {
 
   @Bean
   public Queue cloudNotificationQueue() {
-      return new Queue("notification.cloudNotification", true);
+    return new Queue("notification.cloudNotification", true);
   }
 
-    @Bean
-    public Queue mailboxQueue() {
-        return new Queue("notification.mailbox", true);
-    }
+  @Bean
+  public Queue mailboxQueue() {
+    return new Queue("notification.mailbox", true);
+  }
 
-    @Bean
-    public Queue smsQueue() {
-        return new Queue("notification.sms", true);
-    }
+  @Bean
+  public Queue smsQueue() {
+    return new Queue("notification.sms", true);
+  }
 }
 

@@ -2,9 +2,7 @@ package org.jhapy.notification.service;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.HasLogger;
@@ -51,8 +49,8 @@ public class SmsServiceImpl implements SmsService, HasLogger {
 
   @Override
   public Page<Sms> findAnyMatching(String filter, Pageable pageable) {
-    String loggerString = getLoggerPrefix("findAnyMatching");
-    logger().debug(loggerString + "In = " + filter);
+    var loggerString = getLoggerPrefix("findAnyMatching");
+    debug(loggerString, "In = {0}", filter);
     Page<Sms> result;
 
     if (StringUtils.isNotBlank(filter)) {
@@ -61,7 +59,7 @@ public class SmsServiceImpl implements SmsService, HasLogger {
       result = smsMessageRepository.findAll(pageable);
     }
 
-    logger().debug(loggerString + "Out = " + result);
+    debug(loggerString, "Out = {0}", result);
 
     return result;
   }
@@ -69,8 +67,8 @@ public class SmsServiceImpl implements SmsService, HasLogger {
 
   @Override
   public long countAnyMatching(String filter) {
-    String loggerString = getLoggerPrefix("countAnyMatching");
-    logger().debug(loggerString + "In = " + filter);
+    var loggerString = getLoggerPrefix("countAnyMatching");
+    debug(loggerString, "In = {0}", filter);
     long result;
     if (StringUtils.isNotBlank(filter)) {
       result = smsMessageRepository.countByCriteria(filter);
@@ -78,7 +76,7 @@ public class SmsServiceImpl implements SmsService, HasLogger {
       result = smsMessageRepository.count();
     }
 
-    logger().debug(loggerString + "Out = " + result);
+    debug(loggerString, "Out = {0}", result);
     return result;
   }
 
@@ -86,19 +84,19 @@ public class SmsServiceImpl implements SmsService, HasLogger {
   @Transactional
   public SmsStatusEnum sendSms(String phoneNumber, String smsAction, Map<String, String> attributes,
       String iso3Language) {
-    String loggerPrefix = getLoggerPrefix("sendSms");
+    var loggerPrefix = getLoggerPrefix("sendSms");
 
-    Optional<SmsTemplate> _smsTemplate = smsTemplateService
+    var optSmsTemplate = smsTemplateService
         .findBySmsAction(smsAction, iso3Language);
 
-    if (_smsTemplate.isPresent()) {
-      SmsTemplate template = _smsTemplate.get();
-      logger().trace(loggerPrefix + "Template found = {}", template);
+    if (optSmsTemplate.isPresent()) {
+      var template = optSmsTemplate.get();
+      trace(loggerPrefix, "Template found = {0}", template);
 
       if (StringUtils.isNotBlank(phoneNumber)) {
         return sendAndSave(phoneNumber, template, attributes);
       } else {
-        logger().warn(loggerPrefix + "No sms to send.");
+        warn(loggerPrefix, "No sms to send.");
       }
     }
     return null;
@@ -106,20 +104,20 @@ public class SmsServiceImpl implements SmsService, HasLogger {
 
   private SmsStatusEnum sendAndSave(String phoneNumber, SmsTemplate smsTemplate,
       Map<String, String> attributes) {
-    String loggerPrefix = getLoggerPrefix("sendAndSave");
-    logger().trace(loggerPrefix + "Template = {}, attributes = {}", smsTemplate, attributes);
-    Sms smsMessage = new Sms();
+    var loggerPrefix = getLoggerPrefix("sendAndSave");
+    trace(loggerPrefix, "Template = {0}, attributes = {1}", smsTemplate, attributes);
+    var smsMessage = new Sms();
     smsMessage.setSmsStatus(SmsStatusEnum.NOT_SENT);
     try {
-      logger().debug(loggerPrefix + "Building the message...");
+      debug(loggerPrefix, "Building the message...");
 
-      Template bodyTemplate = new Template(
+      var bodyTemplate = new Template(
           null,
           smsTemplate.getBody(),
           new Configuration(Configuration.VERSION_2_3_28)
       );
 
-      String body = FreeMarkerTemplateUtils.processTemplateIntoString(bodyTemplate, attributes);
+      var body = FreeMarkerTemplateUtils.processTemplateIntoString(bodyTemplate, attributes);
 
       // initialize saved sms data
       smsMessage.setPhoneNumber(phoneNumber);
@@ -127,20 +125,20 @@ public class SmsServiceImpl implements SmsService, HasLogger {
 
       sendSms(smsMessage);
     } catch (Exception e) {
-      logger().error(loggerPrefix + "Error while preparing mail = {}, message = {}",
+      error(loggerPrefix, "Error while preparing mail = {0}, message = {1}",
           smsMessage.getSmsAction(), e.getMessage());
       smsMessage.setSmsStatus(SmsStatusEnum.ERROR);
     } finally {
-      logger().debug(loggerPrefix + "Email sent status = {}", smsMessage.getSmsStatus());
+      debug(loggerPrefix, "Email sent status = {0}", smsMessage.getSmsStatus());
     }
     smsMessage = smsMessageRepository.save(smsMessage);
     return smsMessage.getSmsStatus();
   }
 
   private SmsStatusEnum sendSms(Sms sms) {
-    String loggerPrefix = getLoggerPrefix("sendSmsMessage");
-    logger().debug(loggerPrefix + "Sending '" + sms.getBody() + "' to " + sms.getBody());
-    SmsResultCodeEnum status = smsProvider
+    var loggerPrefix = getLoggerPrefix("sendSmsMessage");
+    debug(loggerPrefix, "Sending '{0}' to '{1}'", sms.getBody(), sms.getBody());
+    var status = smsProvider
         .sendSms(sms.getPhoneNumber(), sms.getBody(), sms.getId());
     if (status.equals(SmsResultCodeEnum.SENT)) {
       sms.setErrorMessage(null);
@@ -162,7 +160,7 @@ public class SmsServiceImpl implements SmsService, HasLogger {
   @Override
   @Transactional
   public void processNotSentSms() {
-    List<Sms> unsentEsmss = smsMessageRepository
+    var unsentEsmss = smsMessageRepository
         .findBySmsStatusIn(SmsStatusEnum.NOT_SENT, SmsStatusEnum.RETRYING);
     unsentEsmss.forEach(sms -> {
       sendSms(sms);

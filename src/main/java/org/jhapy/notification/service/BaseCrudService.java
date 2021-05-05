@@ -39,7 +39,7 @@ public interface BaseCrudService<T extends BaseEntity> {
   }
 
   default T load(String id) {
-    T entity = getRepository().findById(id).orElse(null);
+    var entity = getRepository().findById(id).orElse(null);
     if (entity == null) {
       throw new EntityNotFoundException();
     }

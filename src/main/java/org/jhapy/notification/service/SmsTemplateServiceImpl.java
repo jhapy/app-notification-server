@@ -29,8 +29,8 @@ public class SmsTemplateServiceImpl implements SmsTemplateService, HasLogger {
 
   @Override
   public Page<SmsTemplate> findAnyMatching(String filter, Pageable pageable) {
-    String loggerString = getLoggerPrefix("findAnyMatching");
-    logger().debug(loggerString + "In = " + filter);
+    var loggerString = getLoggerPrefix("findAnyMatching");
+    debug(loggerString, "In = {0}", filter);
     Page<SmsTemplate> result;
 
     if (StringUtils.isNotBlank(filter)) {
@@ -39,7 +39,7 @@ public class SmsTemplateServiceImpl implements SmsTemplateService, HasLogger {
       result = smsTemplateRepository.findAll(pageable);
     }
 
-    logger().debug(loggerString + "Out = " + result);
+    debug(loggerString, "Out = {0}", result);
 
     return result;
   }
@@ -47,8 +47,8 @@ public class SmsTemplateServiceImpl implements SmsTemplateService, HasLogger {
 
   @Override
   public long countAnyMatching(String filter) {
-    String loggerString = getLoggerPrefix("countAnyMatching");
-    logger().debug(loggerString + "In = " + filter);
+    var loggerString = getLoggerPrefix("countAnyMatching");
+    debug(loggerString, "In = {0}", filter);
     long result;
     if (StringUtils.isNotBlank(filter)) {
       result = smsTemplateRepository.countByCriteria(filter);
@@ -56,7 +56,7 @@ public class SmsTemplateServiceImpl implements SmsTemplateService, HasLogger {
       result = smsTemplateRepository.count();
     }
 
-    logger().debug(loggerString + "Out = " + result);
+    debug(loggerString, "Out = {0}", result);
     return result;
   }
 

@@ -51,8 +51,8 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
 
   @Override
   public Page<CloudDataMessage> findAnyMatching(String filter, Pageable pageable) {
-    String loggerString = getLoggerPrefix("findAnyMatching");
-    logger().debug(loggerString + "In = " + filter);
+    var loggerString = getLoggerPrefix("findAnyMatching");
+    debug(loggerString, "In = {0}", filter);
     Page<CloudDataMessage> result;
 
     if (StringUtils.isNotBlank(filter)) {
@@ -61,7 +61,7 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
       result = cloudDataMessageRepository.findAll(pageable);
     }
 
-    logger().debug(loggerString + "Out = " + result);
+    debug(loggerString, "Out = {0}", result);
 
     return result;
   }
@@ -69,8 +69,8 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
 
   @Override
   public long countAnyMatching(String filter) {
-    String loggerString = getLoggerPrefix("countAnyMatching");
-    logger().debug(loggerString + "In = " + filter);
+    var loggerString = getLoggerPrefix("countAnyMatching");
+    debug(loggerString, "In = {0}", filter);
     long result;
     if (StringUtils.isNotBlank(filter)) {
       result = cloudDataMessageRepository.countByCriteria(filter);
@@ -78,7 +78,7 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
       result = cloudDataMessageRepository.count();
     }
 
-    logger().debug(loggerString + "Out = " + result);
+    debug(loggerString, "Out = {0}", result);
     return result;
   }
 
@@ -87,40 +87,40 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
   public CloudDataMessageStatusEnum sendCloudDataMessage(String deviceToken,
       String cloudDataMessageAction, String topic, String data, Map<String, String> attributes,
       String iso3Language) {
-    String loggerPrefix = getLoggerPrefix("sendCloudDataMessage");
+    var loggerPrefix = getLoggerPrefix("sendCloudDataMessage");
 
     Optional<CloudDataMessageTemplate> _cloudDataMessageTemplate = cloudDataMessageTemplateService
         .findByCloudDataMessageAction(cloudDataMessageAction, iso3Language);
     CloudDataMessageTemplate template = null;
     if (_cloudDataMessageTemplate.isPresent()) {
       template = _cloudDataMessageTemplate.get();
-      logger().trace(loggerPrefix + "Template found = {}", template);
+      trace(loggerPrefix, "Template found = {0}", template);
     }
 
     if (StringUtils.isNotBlank(deviceToken) || StringUtils.isNotBlank(topic)) {
       return sendAndSave(deviceToken, topic, data, template, attributes);
     } else {
-      logger().warn(loggerPrefix + "No cloudDataMessage to send.");
+      warn(loggerPrefix, "No cloudDataMessage to send.");
     }
     return null;
   }
 
   private CloudDataMessageStatusEnum sendAndSave(String deviceToken, String topic, String data,
       CloudDataMessageTemplate cloudDataMessageTemplate, Map<String, String> attributes) {
-    String loggerPrefix = getLoggerPrefix("sendAndSave");
-    logger().trace(loggerPrefix + "Template = {}, attributes = {}", cloudDataMessageTemplate,
+    var loggerPrefix = getLoggerPrefix("sendAndSave");
+    trace(loggerPrefix, "Template = {0}, attributes = ", cloudDataMessageTemplate,
         attributes);
-    CloudDataMessage cloudDataMessage = new CloudDataMessage();
+    var cloudDataMessage = new CloudDataMessage();
     cloudDataMessage.setCloudDataMessageStatus(CloudDataMessageStatusEnum.NOT_SENT);
     try {
-      logger().debug(loggerPrefix + "Building the message...");
+      debug(loggerPrefix, "Building the message...");
 
       String _data = null;
       if (StringUtils.isNotBlank(data)) {
         _data = data;
       } else if (cloudDataMessageTemplate != null) {
         if (StringUtils.isNotBlank(cloudDataMessageTemplate.getData())) {
-          Template dataTemplate = new Template(
+          var dataTemplate = new Template(
               null,
               cloudDataMessageTemplate.getData(),
               new Configuration(Configuration.VERSION_2_3_28)
@@ -135,11 +135,11 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
       cloudDataMessage.setTopic(topic);
       sendCloudDataMessage(cloudDataMessage);
     } catch (Exception e) {
-      logger().error(loggerPrefix + "Error while preparing mail = {}, message = {}",
+      error(loggerPrefix, "Error while preparing mail = {0}, message = {1}",
           cloudDataMessage.getCloudDataMessageAction(), e.getMessage());
       cloudDataMessage.setCloudDataMessageStatus(CloudDataMessageStatusEnum.ERROR);
     } finally {
-      logger().debug(loggerPrefix + "Email sent status = {}",
+      debug(loggerPrefix, "Email sent status = {0}",
           cloudDataMessage.getCloudDataMessageStatus());
     }
     cloudDataMessage = cloudDataMessageRepository.save(cloudDataMessage);
@@ -147,15 +147,15 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
   }
 
   private CloudDataMessageStatusEnum sendCloudDataMessage(CloudDataMessage cloudDataMessage) {
-    String loggerPrefix = getLoggerPrefix("sendCloudDataMessage");
-    logger().debug(
-        loggerPrefix + "Sending '" + cloudDataMessage.getData() + "' to " + cloudDataMessage
+    var loggerPrefix = getLoggerPrefix("sendCloudDataMessage");
+    debug(
+        loggerPrefix, "Sending '{0}' to '{1}'", cloudDataMessage.getData(), cloudDataMessage
             .getDeviceToken());
-    String status = cloudDataMessageProvider
+    var status = cloudDataMessageProvider
         .sendCloudDataMessage(cloudDataMessage.getDeviceToken(), cloudDataMessage.getTopic(),
             cloudDataMessage.getData(),
             cloudDataMessage.getId());
-    logger().debug(loggerPrefix + "Result = " + status);
+    debug(loggerPrefix, "Result = {0}", status);
 
     /*
     if (status.equals(CloudDataMessageResultCodeEnum.SENT)) {
