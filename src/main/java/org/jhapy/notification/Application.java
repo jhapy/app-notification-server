@@ -69,10 +69,10 @@ public class Application implements InitializingBean, HasLogger {
     HasLoggerStatic.info(Application.class, loggerPrefix, """
 
             ----------------------------------------------------------
-            \tApplication '{}' is running! Access URLs:
-            \tLocal: \t\t{}://localhost:{}{}
-            \tExternal: \t{}://{}:{}{}
-            \tProfile(s): \t{}
+            \tApplication '{0}' is running! Access URLs:
+            \tLocal: \t\t{1}://localhost:{2}{3}
+            \tExternal: \t{4}://{5}:{6}{7}
+            \tProfile(s): \t{8}
             ----------------------------------------------------------""",
         env.getProperty("spring.application.name"),
         protocol,
@@ -91,7 +91,7 @@ public class Application implements InitializingBean, HasLogger {
     HasLoggerStatic.info(Application.class, loggerPrefix, """
 
             ----------------------------------------------------------
-            \tConfig Server: \t{}
+            \tConfig Server: \t{0}
             ----------------------------------------------------------""",
         configServerStatus);
   }
