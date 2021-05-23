@@ -1,16 +1,14 @@
 package org.jhapy.notification.endpoint;
 
 import org.jhapy.commons.endpoint.BaseEndpoint;
-import org.jhapy.commons.utils.OrikaBeanMapper;
-import org.jhapy.dto.domain.notification.Mail;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.CountAnyMatchingQuery;
 import org.jhapy.dto.serviceQuery.generic.DeleteByStrIdQuery;
 import org.jhapy.dto.serviceQuery.generic.FindAnyMatchingQuery;
 import org.jhapy.dto.serviceQuery.generic.GetByStrIdQuery;
+import org.jhapy.notification.converter.NotificationConverterV2;
 import org.jhapy.notification.service.MailService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,57 +28,42 @@ public class MailServiceEndpoint extends BaseEndpoint {
   private final MailService mailService;
 
   public MailServiceEndpoint(MailService mailService,
-      OrikaBeanMapper mapperFacade) {
-    super(mapperFacade);
+      NotificationConverterV2 converter) {
+    super(converter);
     this.mailService = mailService;
+  }
+
+  protected NotificationConverterV2 getConverter() {
+    return (NotificationConverterV2) converter;
   }
 
   @PostMapping(value = "/findAnyMatching")
   public ResponseEntity<ServiceResult> findAnyMatching(@RequestBody FindAnyMatchingQuery query) {
     var loggerPrefix = getLoggerPrefix("findAnyMatching");
-    try {
-      Page<org.jhapy.notification.domain.Mail> result = mailService
-          .findAnyMatching(query.getFilter(),
-              mapperFacade.map(query.getPageable(),
-                  Pageable.class, getOrikaContext(query)));
-      org.jhapy.dto.utils.Page<Mail> convertedResult = new org.jhapy.dto.utils.Page<>();
-      mapperFacade.map(result, convertedResult, getOrikaContext(query));
-      return handleResult(loggerPrefix, convertedResult);
-    } catch (Throwable t) {
-      return handleResult(loggerPrefix, t);
-    }
+    Page<org.jhapy.notification.domain.Mail> result = mailService
+        .findAnyMatching(query.getFilter(),
+            converter.convert(query.getPageable()));
+    return handleResult(loggerPrefix,
+        toDtoPage(result, getConverter().convertToDtoMails(result.getContent())));
   }
 
   @PostMapping(value = "/countAnyMatching")
   public ResponseEntity<ServiceResult> countAnyMatching(@RequestBody CountAnyMatchingQuery query) {
     var loggerPrefix = getLoggerPrefix("countAnyMatching");
-    try {
-      return handleResult(loggerPrefix, mailService
-          .countAnyMatching(query.getFilter()));
-    } catch (Throwable t) {
-      return handleResult(loggerPrefix, t);
-    }
+    return handleResult(loggerPrefix, mailService
+        .countAnyMatching(query.getFilter()));
   }
 
   @PostMapping(value = "/getById")
   public ResponseEntity<ServiceResult> getById(@RequestBody GetByStrIdQuery query) {
     var loggerPrefix = getLoggerPrefix("getById");
-    try {
-      return handleResult(loggerPrefix, mapperFacade.map(mailService
-          .load(query.getId()), Mail.class, getOrikaContext(query)));
-    } catch (Throwable t) {
-      return handleResult(loggerPrefix, t);
-    }
+    return handleResult(loggerPrefix, getConverter().convertToDto(mailService.load(query.getId())));
   }
 
   @PostMapping(value = "/delete")
   public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByStrIdQuery query) {
     var loggerPrefix = getLoggerPrefix("delete");
-    try {
-      mailService.delete(query.getId());
-      return handleResult(loggerPrefix);
-    } catch (Throwable t) {
-      return handleResult(loggerPrefix, t);
-    }
+    mailService.delete(query.getId());
+    return handleResult(loggerPrefix);
   }
 }

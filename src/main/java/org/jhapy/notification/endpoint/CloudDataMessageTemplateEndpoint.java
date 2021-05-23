@@ -1,7 +1,6 @@
 package org.jhapy.notification.endpoint;
 
 import org.jhapy.commons.endpoint.BaseEndpoint;
-import org.jhapy.commons.utils.OrikaBeanMapper;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.CountAnyMatchingQuery;
 import org.jhapy.dto.serviceQuery.generic.DeleteByStrIdQuery;
@@ -9,10 +8,10 @@ import org.jhapy.dto.serviceQuery.generic.FindAnyMatchingQuery;
 import org.jhapy.dto.serviceQuery.generic.GetByNameQuery;
 import org.jhapy.dto.serviceQuery.generic.GetByStrIdQuery;
 import org.jhapy.dto.serviceQuery.generic.SaveQuery;
+import org.jhapy.notification.converter.NotificationConverterV2;
 import org.jhapy.notification.domain.CloudDataMessageTemplate;
 import org.jhapy.notification.service.CloudDataMessageTemplateService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,88 +32,60 @@ public class CloudDataMessageTemplateEndpoint extends BaseEndpoint {
 
   public CloudDataMessageTemplateEndpoint(
       CloudDataMessageTemplateService cloudDataMessageTemplateService,
-      OrikaBeanMapper mapperFacade) {
-    super(mapperFacade);
+      NotificationConverterV2 converter) {
+    super(converter);
     this.cloudDataMessageTemplateService = cloudDataMessageTemplateService;
   }
+
+  protected NotificationConverterV2 getConverter() {
+    return (NotificationConverterV2) converter;
+  }
+
 
   @PostMapping(value = "/findAnyMatching")
   public ResponseEntity<ServiceResult> findAnyMatching(@RequestBody FindAnyMatchingQuery query) {
     var loggerPrefix = getLoggerPrefix("findAnyMatching");
-    try {
-      Page<CloudDataMessageTemplate> result = cloudDataMessageTemplateService
-          .findAnyMatching(query.getFilter(),
-              mapperFacade.map(query.getPageable(),
-                  Pageable.class, getOrikaContext(query)));
-      org.jhapy.dto.utils.Page<CloudDataMessageTemplate> convertedResult = new org.jhapy.dto.utils.Page<>();
-      mapperFacade.map(result, convertedResult, getOrikaContext(query));
-      return handleResult(loggerPrefix, convertedResult);
-    } catch (Throwable t) {
-      return handleResult(loggerPrefix, t);
-    }
+    Page<CloudDataMessageTemplate> result = cloudDataMessageTemplateService
+        .findAnyMatching(query.getFilter(),
+            converter.convert(query.getPageable()));
+    return handleResult(loggerPrefix, toDtoPage(result,
+        getConverter().convertToDtoCloudDataMessageTemplates(result.getContent())));
   }
 
   @PostMapping(value = "/countAnyMatching")
   public ResponseEntity<ServiceResult> countAnyMatching(@RequestBody CountAnyMatchingQuery query) {
     var loggerPrefix = getLoggerPrefix("countAnyMatching");
-    try {
-      return handleResult(loggerPrefix, cloudDataMessageTemplateService
-          .countAnyMatching(query.getFilter()));
-    } catch (Throwable t) {
-      return handleResult(loggerPrefix, t);
-    }
+    return handleResult(loggerPrefix, cloudDataMessageTemplateService
+        .countAnyMatching(query.getFilter()));
   }
 
   @PostMapping(value = "/getById")
   public ResponseEntity<ServiceResult> getById(@RequestBody GetByStrIdQuery query) {
     var loggerPrefix = getLoggerPrefix("getById");
-    try {
-      return handleResult(loggerPrefix, mapperFacade.map(cloudDataMessageTemplateService
-              .load(query.getId()),
-          org.jhapy.dto.domain.notification.CloudDataMessageTemplate.class,
-          getOrikaContext(query)));
-    } catch (Throwable t) {
-      return handleResult(loggerPrefix, t);
-    }
+    return handleResult(loggerPrefix,
+        getConverter().convertToDto(cloudDataMessageTemplateService.load(query.getId())));
   }
 
   @PostMapping(value = "/getByCloudDataMessageAction")
   public ResponseEntity<ServiceResult> getByCloudDataMessageAction(
       @RequestBody GetByNameQuery query) {
     var loggerPrefix = getLoggerPrefix("getByCloudDataMessageAction");
-    try {
-      return handleResult(loggerPrefix, mapperFacade.map(cloudDataMessageTemplateService
-              .getByCloudDataMessageAction(query.getName()),
-          org.jhapy.dto.domain.notification.CloudDataMessageTemplate.class,
-          getOrikaContext(query)));
-    } catch (Throwable t) {
-      return handleResult(loggerPrefix, t);
-    }
+    return handleResult(loggerPrefix, getConverter().convertToDto(cloudDataMessageTemplateService
+        .getByCloudDataMessageAction(query.getName())));
   }
 
   @PostMapping(value = "/save")
   public ResponseEntity<ServiceResult> save(
       @RequestBody SaveQuery<org.jhapy.dto.domain.notification.CloudDataMessageTemplate> query) {
     var loggerPrefix = getLoggerPrefix("save");
-    try {
-      return handleResult(loggerPrefix, mapperFacade.map(cloudDataMessageTemplateService
-              .save(mapperFacade
-                  .map(query.getEntity(), CloudDataMessageTemplate.class, getOrikaContext(query))),
-          org.jhapy.dto.domain.notification.CloudDataMessageTemplate.class,
-          getOrikaContext(query)));
-    } catch (Throwable t) {
-      return handleResult(loggerPrefix, t);
-    }
+    return handleResult(loggerPrefix, getConverter().convertToDto(
+        cloudDataMessageTemplateService.save(getConverter().convertToDomain(query.getEntity()))));
   }
 
   @PostMapping(value = "/delete")
   public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByStrIdQuery query) {
     var loggerPrefix = getLoggerPrefix("delete");
-    try {
-      cloudDataMessageTemplateService.delete(query.getId());
-      return handleResult(loggerPrefix);
-    } catch (Throwable t) {
-      return handleResult(loggerPrefix, t);
-    }
+    cloudDataMessageTemplateService.delete(query.getId());
+    return handleResult(loggerPrefix);
   }
 }
