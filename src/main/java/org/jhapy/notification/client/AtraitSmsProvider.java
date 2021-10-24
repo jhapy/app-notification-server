@@ -1,7 +1,5 @@
 package org.jhapy.notification.client;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.jhapy.commons.utils.HasLogger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +7,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author jHapy Lead Dev.
@@ -28,7 +30,7 @@ public class AtraitSmsProvider implements SmsProvider, HasLogger {
   private String shortCode;
 
   @Override
-  public SmsResultCodeEnum sendSms(String to, String message, String id) {
+  public SmsResultCodeEnum sendSms(String to, String message, UUID id) {
     var loggerPrefix = getLoggerPrefix("sendSms");
     ResponseEntity<String> response;
     try {
@@ -37,7 +39,7 @@ public class AtraitSmsProvider implements SmsProvider, HasLogger {
       uriParams.put("password", password);
       uriParams.put("mobileNumber", to);
       uriParams.put("message", message);
-      uriParams.put("id", id);
+      uriParams.put("id", id.toString());
       uriParams.put("shortCode", shortCode);
       response = (new RestTemplate()).getForEntity(url, String.class, uriParams);
     } catch (HttpServerErrorException | HttpClientErrorException error) {

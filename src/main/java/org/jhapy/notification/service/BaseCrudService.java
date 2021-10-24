@@ -1,10 +1,11 @@
 package org.jhapy.notification.service;
 
-
 import org.jhapy.dto.domain.exception.EntityNotFoundException;
 import org.jhapy.notification.domain.BaseEntity;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 /**
  * @author jHapy Lead Dev.
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public interface BaseCrudService<T extends BaseEntity> {
 
-  MongoRepository<T, String> getRepository();
+  MongoRepository<T, UUID> getRepository();
 
   @Transactional
   default T save(T entity) {
@@ -30,7 +31,7 @@ public interface BaseCrudService<T extends BaseEntity> {
   }
 
   @Transactional
-  default void delete(String id) {
+  default void delete(UUID id) {
     delete(load(id));
   }
 
@@ -38,7 +39,7 @@ public interface BaseCrudService<T extends BaseEntity> {
     return getRepository().count();
   }
 
-  default T load(String id) {
+  default T load(UUID id) {
     var entity = getRepository().findById(id).orElse(null);
     if (entity == null) {
       throw new EntityNotFoundException();

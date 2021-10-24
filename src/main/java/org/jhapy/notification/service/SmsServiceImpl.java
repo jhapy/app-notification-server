@@ -2,8 +2,6 @@ package org.jhapy.notification.service;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import java.util.Map;
-import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.notification.client.SmsProvider;
@@ -18,6 +16,9 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author jHapy Lead Dev.
@@ -34,7 +35,8 @@ public class SmsServiceImpl implements SmsService, HasLogger {
 
   private final SmsTemplateService smsTemplateService;
 
-  public SmsServiceImpl(SmsProvider smsProvider,
+  public SmsServiceImpl(
+      SmsProvider smsProvider,
       SmsMessageRepository smsMessageRepository,
       SmsTemplateService smsTemplateService) {
     this.smsProvider = smsProvider;
@@ -44,7 +46,7 @@ public class SmsServiceImpl implements SmsService, HasLogger {
 
   @Override
   public void sendSimpleSms(String to, String text) {
-    smsProvider.sendSms(to, text, UUID.randomUUID().toString());
+    smsProvider.sendSms(to, text, UUID.randomUUID());
   }
 
   @Override
@@ -64,7 +66,6 @@ public class SmsServiceImpl implements SmsService, HasLogger {
     return result;
   }
 
-
   @Override
   public long countAnyMatching(String filter) {
     var loggerString = getLoggerPrefix("countAnyMatching");
@@ -82,12 +83,11 @@ public class SmsServiceImpl implements SmsService, HasLogger {
 
   @Override
   @Transactional
-  public SmsStatusEnum sendSms(String phoneNumber, String smsAction, Map<String, String> attributes,
-      String iso3Language) {
+  public SmsStatusEnum sendSms(
+      String phoneNumber, String smsAction, Map<String, String> attributes, String iso3Language) {
     var loggerPrefix = getLoggerPrefix("sendSms");
 
-    var optSmsTemplate = smsTemplateService
-        .findBySmsAction(smsAction, iso3Language);
+    var optSmsTemplate = smsTemplateService.findBySmsAction(smsAction, iso3Language);
 
     if (optSmsTemplate.isPresent()) {
       var template = optSmsTemplate.get();
@@ -102,8 +102,8 @@ public class SmsServiceImpl implements SmsService, HasLogger {
     return null;
   }
 
-  private SmsStatusEnum sendAndSave(String phoneNumber, SmsTemplate smsTemplate,
-      Map<String, String> attributes) {
+  private SmsStatusEnum sendAndSave(
+      String phoneNumber, SmsTemplate smsTemplate, Map<String, String> attributes) {
     var loggerPrefix = getLoggerPrefix("sendAndSave");
     trace(loggerPrefix, "Template = {0}, attributes = {1}", smsTemplate, attributes);
     var smsMessage = new Sms();
@@ -111,11 +111,9 @@ public class SmsServiceImpl implements SmsService, HasLogger {
     try {
       debug(loggerPrefix, "Building the message...");
 
-      var bodyTemplate = new Template(
-          null,
-          smsTemplate.getBody(),
-          new Configuration(Configuration.VERSION_2_3_28)
-      );
+      var bodyTemplate =
+          new Template(
+              null, smsTemplate.getBody(), new Configuration(Configuration.VERSION_2_3_28));
 
       var body = FreeMarkerTemplateUtils.processTemplateIntoString(bodyTemplate, attributes);
 
@@ -125,8 +123,11 @@ public class SmsServiceImpl implements SmsService, HasLogger {
 
       sendSms(smsMessage);
     } catch (Exception e) {
-      error(loggerPrefix, "Error while preparing mail = {0}, message = {1}",
-          smsMessage.getSmsAction(), e.getMessage());
+      error(
+          loggerPrefix,
+          "Error while preparing mail = {0}, message = {1}",
+          smsMessage.getSmsAction(),
+          e.getMessage());
       smsMessage.setSmsStatus(SmsStatusEnum.ERROR);
     } finally {
       debug(loggerPrefix, "Email sent status = {0}", smsMessage.getSmsStatus());
@@ -138,8 +139,7 @@ public class SmsServiceImpl implements SmsService, HasLogger {
   private SmsStatusEnum sendSms(Sms sms) {
     var loggerPrefix = getLoggerPrefix("sendSmsMessage");
     debug(loggerPrefix, "Sending '{0}' to '{1}'", sms.getBody(), sms.getBody());
-    var status = smsProvider
-        .sendSms(sms.getPhoneNumber(), sms.getBody(), sms.getId());
+    var status = smsProvider.sendSms(sms.getPhoneNumber(), sms.getBody(), sms.getId());
     if (status.equals(SmsResultCodeEnum.SENT)) {
       sms.setErrorMessage(null);
       sms.setSmsStatus(SmsStatusEnum.SENT);
@@ -160,16 +160,17 @@ public class SmsServiceImpl implements SmsService, HasLogger {
   @Override
   @Transactional
   public void processNotSentSms() {
-    var unsentEsmss = smsMessageRepository
-        .findBySmsStatusIn(SmsStatusEnum.NOT_SENT, SmsStatusEnum.RETRYING);
-    unsentEsmss.forEach(sms -> {
-      sendSms(sms);
-      smsMessageRepository.save(sms);
-    });
+    var unsentEsmss =
+        smsMessageRepository.findBySmsStatusIn(SmsStatusEnum.NOT_SENT, SmsStatusEnum.RETRYING);
+    unsentEsmss.forEach(
+        sms -> {
+          sendSms(sms);
+          smsMessageRepository.save(sms);
+        });
   }
 
   @Override
-  public MongoRepository<Sms, String> getRepository() {
+  public MongoRepository<Sms, UUID> getRepository() {
     return smsMessageRepository;
   }
 }

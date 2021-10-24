@@ -1,6 +1,5 @@
 package org.jhapy.notification.service;
 
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.notification.domain.MailTemplate;
@@ -11,14 +10,16 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 @Transactional(readOnly = true)
 public class MailTemplateServiceImpl implements MailTemplateService, HasLogger {
 
   private final MailTemplateRepository mailTemplateRepository;
 
-  public MailTemplateServiceImpl(
-      MailTemplateRepository mailTemplateRepository) {
+  public MailTemplateServiceImpl(MailTemplateRepository mailTemplateRepository) {
     this.mailTemplateRepository = mailTemplateRepository;
   }
 
@@ -44,7 +45,6 @@ public class MailTemplateServiceImpl implements MailTemplateService, HasLogger {
     return result;
   }
 
-
   @Override
   public long countAnyMatching(String filter) {
     var loggerString = getLoggerPrefix("countAnyMatching");
@@ -68,11 +68,10 @@ public class MailTemplateServiceImpl implements MailTemplateService, HasLogger {
   @Override
   public Optional<MailTemplate> findByMailAction(String mailAction, String iso3Language) {
     if (StringUtils.isNotBlank(iso3Language)) {
-      return mailTemplateRepository
-          .findByMailActionAndIso3LanguageAndIsActiveIsTrue(mailAction, iso3Language);
+      return mailTemplateRepository.findByMailActionAndIso3LanguageAndIsActiveIsTrue(
+          mailAction, iso3Language);
     } else {
-      return mailTemplateRepository
-          .findByMailActionAndIsActiveIsTrue(mailAction);
+      return mailTemplateRepository.findByMailActionAndIsActiveIsTrue(mailAction);
     }
   }
 
@@ -100,7 +99,7 @@ public class MailTemplateServiceImpl implements MailTemplateService, HasLogger {
   }
 
   @Override
-  public MongoRepository<MailTemplate, String> getRepository() {
+  public MongoRepository<MailTemplate, UUID> getRepository() {
     return mailTemplateRepository;
   }
 }

@@ -2,8 +2,6 @@ package org.jhapy.notification.service;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import java.util.Map;
-import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.notification.client.CloudNotificationMessageProvider;
@@ -18,6 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
+import java.util.Map;
+import java.util.UUID;
+
 /**
  * @author jHapy Lead Dev.
  * @version 1.0
@@ -25,8 +26,8 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
  */
 @Service
 @Transactional(readOnly = true)
-public class CloudNotificationMessageServiceImpl implements CloudNotificationMessageService,
-    HasLogger {
+public class CloudNotificationMessageServiceImpl
+    implements CloudNotificationMessageService, HasLogger {
 
   private final CloudNotificationMessageProvider cloudNotificationMessageProvider;
 
@@ -44,10 +45,10 @@ public class CloudNotificationMessageServiceImpl implements CloudNotificationMes
   }
 
   @Override
-  public void sendSimpleCloudNotificationMessage(String deviceToken, String title, String body,
-      String data) {
-    cloudNotificationMessageProvider
-        .sendCloudNotificationMessage(deviceToken, title, body, data, UUID.randomUUID().toString());
+  public void sendSimpleCloudNotificationMessage(
+      String deviceToken, String title, String body, String data) {
+    cloudNotificationMessageProvider.sendCloudNotificationMessage(
+        deviceToken, title, body, data, UUID.randomUUID());
   }
 
   @Override
@@ -67,7 +68,6 @@ public class CloudNotificationMessageServiceImpl implements CloudNotificationMes
     return result;
   }
 
-
   @Override
   public long countAnyMatching(String filter) {
     var loggerString = getLoggerPrefix("countAnyMatching");
@@ -85,13 +85,19 @@ public class CloudNotificationMessageServiceImpl implements CloudNotificationMes
 
   @Override
   @Transactional
-  public CloudNotificationMessageStatusEnum sendCloudNotificationMessage(String deviceToken,
-      String cloudNotificationMessageAction, String title, String body, String data,
-      Map<String, String> attributes, String iso3Language) {
+  public CloudNotificationMessageStatusEnum sendCloudNotificationMessage(
+      String deviceToken,
+      String cloudNotificationMessageAction,
+      String title,
+      String body,
+      String data,
+      Map<String, String> attributes,
+      String iso3Language) {
     var loggerPrefix = getLoggerPrefix("sendCloudNotificationMessage");
 
-    var _cloudNotificationMessageTemplate = cloudNotificationMessageTemplateService
-        .findByCloudNotificationMessageAction(cloudNotificationMessageAction, iso3Language);
+    var _cloudNotificationMessageTemplate =
+        cloudNotificationMessageTemplateService.findByCloudNotificationMessageAction(
+            cloudNotificationMessageAction, iso3Language);
 
     CloudNotificationMessageTemplate template = null;
     if (_cloudNotificationMessageTemplate.isPresent()) {
@@ -107,15 +113,22 @@ public class CloudNotificationMessageServiceImpl implements CloudNotificationMes
     return null;
   }
 
-  private CloudNotificationMessageStatusEnum sendAndSave(String deviceToken, String title,
-      String body, String data, CloudNotificationMessageTemplate cloudNotificationMessageTemplate,
+  private CloudNotificationMessageStatusEnum sendAndSave(
+      String deviceToken,
+      String title,
+      String body,
+      String data,
+      CloudNotificationMessageTemplate cloudNotificationMessageTemplate,
       Map<String, String> attributes) {
     var loggerPrefix = getLoggerPrefix("sendAndSave");
-    trace(loggerPrefix, "Template = {0}, attributes = {1}", cloudNotificationMessageTemplate,
+    trace(
+        loggerPrefix,
+        "Template = {0}, attributes = {1}",
+        cloudNotificationMessageTemplate,
         attributes);
     var cloudNotificationMessage = new CloudNotificationMessage();
-    cloudNotificationMessage
-        .setCloudNotificationMessageStatus(CloudNotificationMessageStatusEnum.NOT_SENT);
+    cloudNotificationMessage.setCloudNotificationMessageStatus(
+        CloudNotificationMessageStatusEnum.NOT_SENT);
     try {
       debug(loggerPrefix, "Building the message...");
 
@@ -124,11 +137,11 @@ public class CloudNotificationMessageServiceImpl implements CloudNotificationMes
         _title = title;
       } else if (cloudNotificationMessageTemplate != null) {
         if (StringUtils.isNotBlank(cloudNotificationMessageTemplate.getTitle())) {
-          var titleTemplate = new Template(
-              null,
-              cloudNotificationMessageTemplate.getTitle(),
-              new Configuration(Configuration.VERSION_2_3_28)
-          );
+          var titleTemplate =
+              new Template(
+                  null,
+                  cloudNotificationMessageTemplate.getTitle(),
+                  new Configuration(Configuration.VERSION_2_3_28));
 
           _title = FreeMarkerTemplateUtils.processTemplateIntoString(titleTemplate, attributes);
         }
@@ -139,11 +152,11 @@ public class CloudNotificationMessageServiceImpl implements CloudNotificationMes
         _body = body;
       } else if (cloudNotificationMessageTemplate != null) {
         if (StringUtils.isNotBlank(cloudNotificationMessageTemplate.getBody())) {
-          var bodyTemplate = new Template(
-              null,
-              cloudNotificationMessageTemplate.getBody(),
-              new Configuration(Configuration.VERSION_2_3_28)
-          );
+          var bodyTemplate =
+              new Template(
+                  null,
+                  cloudNotificationMessageTemplate.getBody(),
+                  new Configuration(Configuration.VERSION_2_3_28));
 
           _body = FreeMarkerTemplateUtils.processTemplateIntoString(bodyTemplate, attributes);
         }
@@ -154,11 +167,11 @@ public class CloudNotificationMessageServiceImpl implements CloudNotificationMes
         _data = data;
       } else if (cloudNotificationMessageTemplate != null) {
         if (StringUtils.isNotBlank(cloudNotificationMessageTemplate.getData())) {
-          var dataTemplate = new Template(
-              null,
-              cloudNotificationMessageTemplate.getData(),
-              new Configuration(Configuration.VERSION_2_3_28)
-          );
+          var dataTemplate =
+              new Template(
+                  null,
+                  cloudNotificationMessageTemplate.getData(),
+                  new Configuration(Configuration.VERSION_2_3_28));
 
           data = FreeMarkerTemplateUtils.processTemplateIntoString(dataTemplate, attributes);
         }
@@ -172,12 +185,17 @@ public class CloudNotificationMessageServiceImpl implements CloudNotificationMes
 
       sendCloudNotificationMessage(cloudNotificationMessage);
     } catch (Exception e) {
-      error(loggerPrefix, "Error while preparing mail = {0}, message = {1}",
-          cloudNotificationMessage.getCloudNotificationMessageAction(), e.getMessage());
-      cloudNotificationMessage
-          .setCloudNotificationMessageStatus(CloudNotificationMessageStatusEnum.ERROR);
+      error(
+          loggerPrefix,
+          "Error while preparing mail = {0}, message = {1}",
+          cloudNotificationMessage.getCloudNotificationMessageAction(),
+          e.getMessage());
+      cloudNotificationMessage.setCloudNotificationMessageStatus(
+          CloudNotificationMessageStatusEnum.ERROR);
     } finally {
-      debug(loggerPrefix, "Email sent status = {0}",
+      debug(
+          loggerPrefix,
+          "Email sent status = {0}",
           cloudNotificationMessage.getCloudNotificationMessageStatus());
     }
     cloudNotificationMessage = cloudNotificationMessageRepository.save(cloudNotificationMessage);
@@ -187,12 +205,18 @@ public class CloudNotificationMessageServiceImpl implements CloudNotificationMes
   private CloudNotificationMessageStatusEnum sendCloudNotificationMessage(
       CloudNotificationMessage cloudNotificationMessage) {
     var loggerPrefix = getLoggerPrefix("sendCloudNotificationMessage");
-    debug(loggerPrefix, "Sending '{0}' to '{1}'", cloudNotificationMessage.getBody(),
+    debug(
+        loggerPrefix,
+        "Sending '{0}' to '{1}'",
+        cloudNotificationMessage.getBody(),
         cloudNotificationMessage.getBody());
-    var status = cloudNotificationMessageProvider
-        .sendCloudNotificationMessage(cloudNotificationMessage.getDeviceToken(),
-            cloudNotificationMessage.getTitle(), cloudNotificationMessage.getBody(),
-            cloudNotificationMessage.getData(), cloudNotificationMessage.getId());
+    var status =
+        cloudNotificationMessageProvider.sendCloudNotificationMessage(
+            cloudNotificationMessage.getDeviceToken(),
+            cloudNotificationMessage.getTitle(),
+            cloudNotificationMessage.getBody(),
+            cloudNotificationMessage.getData(),
+            cloudNotificationMessage.getId());
 
     debug(loggerPrefix, "Result = {0}", status);
     /*
@@ -217,17 +241,19 @@ public class CloudNotificationMessageServiceImpl implements CloudNotificationMes
   @Override
   @Transactional
   public void processNotSentCloudNotificationMessages() {
-    var unsentEcloudNotificationMessages = cloudNotificationMessageRepository
-        .findByCloudNotificationMessageStatusIn(CloudNotificationMessageStatusEnum.NOT_SENT,
+    var unsentEcloudNotificationMessages =
+        cloudNotificationMessageRepository.findByCloudNotificationMessageStatusIn(
+            CloudNotificationMessageStatusEnum.NOT_SENT,
             CloudNotificationMessageStatusEnum.RETRYING);
-    unsentEcloudNotificationMessages.forEach(cloudNotificationMessage -> {
-      sendCloudNotificationMessage(cloudNotificationMessage);
-      cloudNotificationMessageRepository.save(cloudNotificationMessage);
-    });
+    unsentEcloudNotificationMessages.forEach(
+        cloudNotificationMessage -> {
+          sendCloudNotificationMessage(cloudNotificationMessage);
+          cloudNotificationMessageRepository.save(cloudNotificationMessage);
+        });
   }
 
   @Override
-  public MongoRepository<CloudNotificationMessage, String> getRepository() {
+  public MongoRepository<CloudNotificationMessage, UUID> getRepository() {
     return cloudNotificationMessageRepository;
   }
 }

@@ -1,6 +1,5 @@
 package org.jhapy.notification.service;
 
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.notification.domain.SmsTemplate;
@@ -11,14 +10,16 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 @Transactional(readOnly = true)
 public class SmsTemplateServiceImpl implements SmsTemplateService, HasLogger {
 
   private final SmsTemplateRepository smsTemplateRepository;
 
-  public SmsTemplateServiceImpl(
-      SmsTemplateRepository smsTemplateRepository) {
+  public SmsTemplateServiceImpl(SmsTemplateRepository smsTemplateRepository) {
     this.smsTemplateRepository = smsTemplateRepository;
   }
 
@@ -44,7 +45,6 @@ public class SmsTemplateServiceImpl implements SmsTemplateService, HasLogger {
     return result;
   }
 
-
   @Override
   public long countAnyMatching(String filter) {
     var loggerString = getLoggerPrefix("countAnyMatching");
@@ -67,8 +67,8 @@ public class SmsTemplateServiceImpl implements SmsTemplateService, HasLogger {
 
   @Override
   public Optional<SmsTemplate> findBySmsAction(String smsAction, String iso3Language) {
-    return smsTemplateRepository
-        .findBySmsActionAndIso3LanguageAndIsActiveIsTrue(smsAction, iso3Language);
+    return smsTemplateRepository.findBySmsActionAndIso3LanguageAndIsActiveIsTrue(
+        smsAction, iso3Language);
   }
 
   @Override
@@ -95,7 +95,7 @@ public class SmsTemplateServiceImpl implements SmsTemplateService, HasLogger {
   }
 
   @Override
-  public MongoRepository<SmsTemplate, String> getRepository() {
+  public MongoRepository<SmsTemplate, UUID> getRepository() {
     return smsTemplateRepository;
   }
 }

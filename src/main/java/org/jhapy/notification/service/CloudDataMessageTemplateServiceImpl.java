@@ -1,6 +1,5 @@
 package org.jhapy.notification.service;
 
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.notification.domain.CloudDataMessageTemplate;
@@ -11,10 +10,13 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 @Transactional(readOnly = true)
-public class CloudDataMessageTemplateServiceImpl implements CloudDataMessageTemplateService,
-    HasLogger {
+public class CloudDataMessageTemplateServiceImpl
+    implements CloudDataMessageTemplateService, HasLogger {
 
   private final CloudDataMessageTemplateRepository cloudDataMessageTemplateRepository;
 
@@ -26,7 +28,8 @@ public class CloudDataMessageTemplateServiceImpl implements CloudDataMessageTemp
   @Override
   public CloudDataMessageTemplate getByCloudDataMessageAction(String cloudDataMessageAction) {
     return cloudDataMessageTemplateRepository
-        .findByCloudDataMessageActionAndIsActiveIsTrue(cloudDataMessageAction).orElse(null);
+        .findByCloudDataMessageActionAndIsActiveIsTrue(cloudDataMessageAction)
+        .orElse(null);
   }
 
   @Override
@@ -46,7 +49,6 @@ public class CloudDataMessageTemplateServiceImpl implements CloudDataMessageTemp
     return result;
   }
 
-
   @Override
   public long countAnyMatching(String filter) {
     var loggerString = getLoggerPrefix("countAnyMatching");
@@ -64,16 +66,16 @@ public class CloudDataMessageTemplateServiceImpl implements CloudDataMessageTemp
 
   @Override
   public long countByCloudDataMessageAction(String cloudDataMessageAction) {
-    return cloudDataMessageTemplateRepository
-        .countByCloudDataMessageActionAndIsActiveIsTrue(cloudDataMessageAction);
+    return cloudDataMessageTemplateRepository.countByCloudDataMessageActionAndIsActiveIsTrue(
+        cloudDataMessageAction);
   }
 
   @Override
   public Optional<CloudDataMessageTemplate> findByCloudDataMessageAction(
       String cloudDataMessageAction, String iso3Language) {
     return cloudDataMessageTemplateRepository
-        .findByCloudDataMessageActionAndIso3LanguageAndIsActiveIsTrue(cloudDataMessageAction,
-            iso3Language);
+        .findByCloudDataMessageActionAndIso3LanguageAndIsActiveIsTrue(
+            cloudDataMessageAction, iso3Language);
   }
 
   @Override
@@ -100,7 +102,7 @@ public class CloudDataMessageTemplateServiceImpl implements CloudDataMessageTemp
   }
 
   @Override
-  public MongoRepository<CloudDataMessageTemplate, String> getRepository() {
+  public MongoRepository<CloudDataMessageTemplate, UUID> getRepository() {
     return cloudDataMessageTemplateRepository;
   }
 }

@@ -2,10 +2,6 @@ package org.jhapy.notification.service;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.notification.client.CloudDataMessageProvider;
@@ -19,6 +15,11 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * @author jHapy Lead Dev.
@@ -35,7 +36,8 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
 
   private final CloudDataMessageTemplateService cloudDataMessageTemplateService;
 
-  public CloudDataMessageServiceImpl(CloudDataMessageProvider cloudDataMessageProvider,
+  public CloudDataMessageServiceImpl(
+      CloudDataMessageProvider cloudDataMessageProvider,
       CloudDataMessageRepository cloudDataMessageRepository,
       CloudDataMessageTemplateService cloudDataMessageTemplateService) {
     this.cloudDataMessageProvider = cloudDataMessageProvider;
@@ -45,8 +47,7 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
 
   @Override
   public void sendSimpleCloudDataMessage(String deviceToken, String topic, String data) {
-    cloudDataMessageProvider
-        .sendCloudDataMessage(deviceToken, topic, data, UUID.randomUUID().toString());
+    cloudDataMessageProvider.sendCloudDataMessage(deviceToken, topic, data, UUID.randomUUID());
   }
 
   @Override
@@ -66,7 +67,6 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
     return result;
   }
 
-
   @Override
   public long countAnyMatching(String filter) {
     var loggerString = getLoggerPrefix("countAnyMatching");
@@ -84,13 +84,18 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
 
   @Override
   @Transactional
-  public CloudDataMessageStatusEnum sendCloudDataMessage(String deviceToken,
-      String cloudDataMessageAction, String topic, String data, Map<String, String> attributes,
+  public CloudDataMessageStatusEnum sendCloudDataMessage(
+      String deviceToken,
+      String cloudDataMessageAction,
+      String topic,
+      String data,
+      Map<String, String> attributes,
       String iso3Language) {
     var loggerPrefix = getLoggerPrefix("sendCloudDataMessage");
 
-    Optional<CloudDataMessageTemplate> _cloudDataMessageTemplate = cloudDataMessageTemplateService
-        .findByCloudDataMessageAction(cloudDataMessageAction, iso3Language);
+    Optional<CloudDataMessageTemplate> _cloudDataMessageTemplate =
+        cloudDataMessageTemplateService.findByCloudDataMessageAction(
+            cloudDataMessageAction, iso3Language);
     CloudDataMessageTemplate template = null;
     if (_cloudDataMessageTemplate.isPresent()) {
       template = _cloudDataMessageTemplate.get();
@@ -105,11 +110,14 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
     return null;
   }
 
-  private CloudDataMessageStatusEnum sendAndSave(String deviceToken, String topic, String data,
-      CloudDataMessageTemplate cloudDataMessageTemplate, Map<String, String> attributes) {
+  private CloudDataMessageStatusEnum sendAndSave(
+      String deviceToken,
+      String topic,
+      String data,
+      CloudDataMessageTemplate cloudDataMessageTemplate,
+      Map<String, String> attributes) {
     var loggerPrefix = getLoggerPrefix("sendAndSave");
-    trace(loggerPrefix, "Template = {0}, attributes = ", cloudDataMessageTemplate,
-        attributes);
+    trace(loggerPrefix, "Template = {0}, attributes = ", cloudDataMessageTemplate, attributes);
     var cloudDataMessage = new CloudDataMessage();
     cloudDataMessage.setCloudDataMessageStatus(CloudDataMessageStatusEnum.NOT_SENT);
     try {
@@ -120,11 +128,11 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
         _data = data;
       } else if (cloudDataMessageTemplate != null) {
         if (StringUtils.isNotBlank(cloudDataMessageTemplate.getData())) {
-          var dataTemplate = new Template(
-              null,
-              cloudDataMessageTemplate.getData(),
-              new Configuration(Configuration.VERSION_2_3_28)
-          );
+          var dataTemplate =
+              new Template(
+                  null,
+                  cloudDataMessageTemplate.getData(),
+                  new Configuration(Configuration.VERSION_2_3_28));
 
           data = FreeMarkerTemplateUtils.processTemplateIntoString(dataTemplate, attributes);
         }
@@ -135,12 +143,14 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
       cloudDataMessage.setTopic(topic);
       sendCloudDataMessage(cloudDataMessage);
     } catch (Exception e) {
-      error(loggerPrefix, "Error while preparing mail = {0}, message = {1}",
-          cloudDataMessage.getCloudDataMessageAction(), e.getMessage());
+      error(
+          loggerPrefix,
+          "Error while preparing mail = {0}, message = {1}",
+          cloudDataMessage.getCloudDataMessageAction(),
+          e.getMessage());
       cloudDataMessage.setCloudDataMessageStatus(CloudDataMessageStatusEnum.ERROR);
     } finally {
-      debug(loggerPrefix, "Email sent status = {0}",
-          cloudDataMessage.getCloudDataMessageStatus());
+      debug(loggerPrefix, "Email sent status = {0}", cloudDataMessage.getCloudDataMessageStatus());
     }
     cloudDataMessage = cloudDataMessageRepository.save(cloudDataMessage);
     return cloudDataMessage.getCloudDataMessageStatus();
@@ -149,10 +159,14 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
   private CloudDataMessageStatusEnum sendCloudDataMessage(CloudDataMessage cloudDataMessage) {
     var loggerPrefix = getLoggerPrefix("sendCloudDataMessage");
     debug(
-        loggerPrefix, "Sending '{0}' to '{1}'", cloudDataMessage.getData(), cloudDataMessage
-            .getDeviceToken());
-    var status = cloudDataMessageProvider
-        .sendCloudDataMessage(cloudDataMessage.getDeviceToken(), cloudDataMessage.getTopic(),
+        loggerPrefix,
+        "Sending '{0}' to '{1}'",
+        cloudDataMessage.getData(),
+        cloudDataMessage.getDeviceToken());
+    var status =
+        cloudDataMessageProvider.sendCloudDataMessage(
+            cloudDataMessage.getDeviceToken(),
+            cloudDataMessage.getTopic(),
             cloudDataMessage.getData(),
             cloudDataMessage.getId());
     debug(loggerPrefix, "Result = {0}", status);
@@ -179,17 +193,18 @@ public class CloudDataMessageServiceImpl implements CloudDataMessageService, Has
   @Override
   @Transactional
   public void processNotSentCloudDataMessages() {
-    List<CloudDataMessage> unsentEcloudDataMessages = cloudDataMessageRepository
-        .findByCloudDataMessageStatusIn(CloudDataMessageStatusEnum.NOT_SENT,
-            CloudDataMessageStatusEnum.RETRYING);
-    unsentEcloudDataMessages.forEach(cloudDataMessage -> {
-      sendCloudDataMessage(cloudDataMessage);
-      cloudDataMessageRepository.save(cloudDataMessage);
-    });
+    List<CloudDataMessage> unsentEcloudDataMessages =
+        cloudDataMessageRepository.findByCloudDataMessageStatusIn(
+            CloudDataMessageStatusEnum.NOT_SENT, CloudDataMessageStatusEnum.RETRYING);
+    unsentEcloudDataMessages.forEach(
+        cloudDataMessage -> {
+          sendCloudDataMessage(cloudDataMessage);
+          cloudDataMessageRepository.save(cloudDataMessage);
+        });
   }
 
   @Override
-  public MongoRepository<CloudDataMessage, String> getRepository() {
+  public MongoRepository<CloudDataMessage, UUID> getRepository() {
     return cloudDataMessageRepository;
   }
 }

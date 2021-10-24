@@ -3,9 +3,9 @@ package org.jhapy.notification.endpoint;
 import org.jhapy.commons.endpoint.BaseEndpoint;
 import org.jhapy.dto.serviceQuery.ServiceResult;
 import org.jhapy.dto.serviceQuery.generic.CountAnyMatchingQuery;
-import org.jhapy.dto.serviceQuery.generic.DeleteByStrIdQuery;
+import org.jhapy.dto.serviceQuery.generic.DeleteByIdQuery;
 import org.jhapy.dto.serviceQuery.generic.FindAnyMatchingQuery;
-import org.jhapy.dto.serviceQuery.generic.GetByStrIdQuery;
+import org.jhapy.dto.serviceQuery.generic.GetByIdQuery;
 import org.jhapy.notification.converter.NotificationConverterV2;
 import org.jhapy.notification.service.MailService;
 import org.springframework.data.domain.Page;
@@ -20,15 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
  * @version 1.0
  * @since 2019-06-05
  */
-
 @RestController
 @RequestMapping("/api/mailService")
 public class MailServiceEndpoint extends BaseEndpoint {
 
   private final MailService mailService;
 
-  public MailServiceEndpoint(MailService mailService,
-      NotificationConverterV2 converter) {
+  public MailServiceEndpoint(MailService mailService, NotificationConverterV2 converter) {
     super(converter);
     this.mailService = mailService;
   }
@@ -40,28 +38,26 @@ public class MailServiceEndpoint extends BaseEndpoint {
   @PostMapping(value = "/findAnyMatching")
   public ResponseEntity<ServiceResult> findAnyMatching(@RequestBody FindAnyMatchingQuery query) {
     var loggerPrefix = getLoggerPrefix("findAnyMatching");
-    Page<org.jhapy.notification.domain.Mail> result = mailService
-        .findAnyMatching(query.getFilter(),
-            converter.convert(query.getPageable()));
-    return handleResult(loggerPrefix,
-        toDtoPage(result, getConverter().convertToDtoMails(result.getContent())));
+    Page<org.jhapy.notification.domain.Mail> result =
+        mailService.findAnyMatching(query.getFilter(), converter.convert(query.getPageable()));
+    return handleResult(
+        loggerPrefix, toDtoPage(result, getConverter().convertToDtoMails(result.getContent())));
   }
 
   @PostMapping(value = "/countAnyMatching")
   public ResponseEntity<ServiceResult> countAnyMatching(@RequestBody CountAnyMatchingQuery query) {
     var loggerPrefix = getLoggerPrefix("countAnyMatching");
-    return handleResult(loggerPrefix, mailService
-        .countAnyMatching(query.getFilter()));
+    return handleResult(loggerPrefix, mailService.countAnyMatching(query.getFilter()));
   }
 
   @PostMapping(value = "/getById")
-  public ResponseEntity<ServiceResult> getById(@RequestBody GetByStrIdQuery query) {
+  public ResponseEntity<ServiceResult> getById(@RequestBody GetByIdQuery query) {
     var loggerPrefix = getLoggerPrefix("getById");
     return handleResult(loggerPrefix, getConverter().convertToDto(mailService.load(query.getId())));
   }
 
   @PostMapping(value = "/delete")
-  public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByStrIdQuery query) {
+  public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByIdQuery query) {
     var loggerPrefix = getLoggerPrefix("delete");
     mailService.delete(query.getId());
     return handleResult(loggerPrefix);

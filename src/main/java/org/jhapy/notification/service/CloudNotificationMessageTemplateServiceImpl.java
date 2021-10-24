@@ -1,6 +1,5 @@
 package org.jhapy.notification.service;
 
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.jhapy.commons.utils.HasLogger;
 import org.jhapy.notification.domain.CloudNotificationMessageTemplate;
@@ -11,12 +10,16 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 @Transactional(readOnly = true)
-public class CloudNotificationMessageTemplateServiceImpl implements
-    CloudNotificationMessageTemplateService, HasLogger {
+public class CloudNotificationMessageTemplateServiceImpl
+    implements CloudNotificationMessageTemplateService, HasLogger {
 
-  private final CloudNotificationMessageTemplateRepository cloudNotificationMessageTemplateRepository;
+  private final CloudNotificationMessageTemplateRepository
+      cloudNotificationMessageTemplateRepository;
 
   public CloudNotificationMessageTemplateServiceImpl(
       CloudNotificationMessageTemplateRepository cloudNotificationMessageTemplateRepository) {
@@ -47,7 +50,6 @@ public class CloudNotificationMessageTemplateServiceImpl implements
 
     return result;
   }
-
 
   @Override
   public long countAnyMatching(String filter) {
@@ -104,7 +106,7 @@ public class CloudNotificationMessageTemplateServiceImpl implements
   }
 
   @Override
-  public MongoRepository<CloudNotificationMessageTemplate, String> getRepository() {
+  public MongoRepository<CloudNotificationMessageTemplate, UUID> getRepository() {
     return cloudNotificationMessageTemplateRepository;
   }
 }

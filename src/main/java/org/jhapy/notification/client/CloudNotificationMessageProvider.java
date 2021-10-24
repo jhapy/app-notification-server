@@ -2,6 +2,8 @@ package org.jhapy.notification.client;
 
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 /**
  * @author jHapy Lead Dev.
  * @version 1.0
@@ -10,6 +12,6 @@ import org.springframework.stereotype.Service;
 @Service
 public interface CloudNotificationMessageProvider {
 
-  String sendCloudNotificationMessage(String deviceToken, String title, String body, String data,
-      String id);
+  String sendCloudNotificationMessage(
+      String deviceToken, String title, String body, String data, UUID id);
 }
