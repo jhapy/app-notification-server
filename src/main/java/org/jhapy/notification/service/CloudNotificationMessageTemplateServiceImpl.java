@@ -97,8 +97,8 @@ public class CloudNotificationMessageTemplateServiceImpl
   @Override
   @Transactional
   public void delete(CloudNotificationMessageTemplate cloudNotificationMessageTemplate) {
-    if (cloudNotificationMessageTemplate.getIsActive()) {
-      cloudNotificationMessageTemplate.setIsActive(false);
+    if (cloudNotificationMessageTemplate.isActive()) {
+      cloudNotificationMessageTemplate.setActive(false);
       cloudNotificationMessageTemplateRepository.save(cloudNotificationMessageTemplate);
     } else {
       cloudNotificationMessageTemplateRepository.delete(cloudNotificationMessageTemplate);

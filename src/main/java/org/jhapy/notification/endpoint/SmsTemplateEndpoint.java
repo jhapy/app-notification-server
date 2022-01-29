@@ -1,12 +1,14 @@
 package org.jhapy.notification.endpoint;
 
-import org.jhapy.commons.endpoint.BaseEndpoint;
+import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.messaging.responsetypes.ResponseTypes;
+import org.axonframework.queryhandling.QueryGateway;
+import org.jhapy.cqrs.query.notification.GetSmsTemplateBySmsActionQuery;
+import org.jhapy.cqrs.query.notification.GetSmsTemplateBySmsActionResponse;
+import org.jhapy.dto.domain.notification.SmsTemplateDTO;
 import org.jhapy.dto.serviceQuery.ServiceResult;
-import org.jhapy.dto.serviceQuery.generic.*;
-import org.jhapy.notification.converter.NotificationConverterV2;
+import org.jhapy.dto.serviceQuery.generic.GetByNameQuery;
 import org.jhapy.notification.domain.SmsTemplate;
-import org.jhapy.notification.service.SmsTemplateService;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,42 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/smsTemplateService")
-public class SmsTemplateEndpoint extends BaseEndpoint {
+public class SmsTemplateEndpoint extends BaseEndpoint<SmsTemplate, SmsTemplateDTO> {
 
-  private final SmsTemplateService smsTemplateService;
-
-  public SmsTemplateEndpoint(
-      SmsTemplateService smsTemplateService, NotificationConverterV2 converter) {
-    super(converter);
-    this.smsTemplateService = smsTemplateService;
-  }
-
-  protected NotificationConverterV2 getConverter() {
-    return (NotificationConverterV2) converter;
-  }
-
-  @PostMapping(value = "/findAnyMatching")
-  public ResponseEntity<ServiceResult> findAnyMatching(@RequestBody FindAnyMatchingQuery query) {
-    var loggerPrefix = getLoggerPrefix("findAnyMatching");
-    Page<SmsTemplate> result =
-        smsTemplateService.findAnyMatching(
-            query.getFilter(), converter.convert(query.getPageable()));
-    return handleResult(
-        loggerPrefix,
-        toDtoPage(result, getConverter().convertToDtoSmsTemplates(result.getContent())));
-  }
-
-  @PostMapping(value = "/countAnyMatching")
-  public ResponseEntity<ServiceResult> countAnyMatching(@RequestBody CountAnyMatchingQuery query) {
-    var loggerPrefix = getLoggerPrefix("countAnyMatching");
-    return handleResult(loggerPrefix, smsTemplateService.countAnyMatching(query.getFilter()));
-  }
-
-  @PostMapping(value = "/getById")
-  public ResponseEntity<ServiceResult> getById(@RequestBody GetByIdQuery query) {
-    var loggerPrefix = getLoggerPrefix("getById");
-    return handleResult(
-        loggerPrefix, getConverter().convertToDto(smsTemplateService.load(query.getId())));
+  public SmsTemplateEndpoint(CommandGateway commandGateway, QueryGateway queryGateway) {
+    super(commandGateway, queryGateway);
   }
 
   @PostMapping(value = "/getBySmsAction")
@@ -63,24 +33,10 @@ public class SmsTemplateEndpoint extends BaseEndpoint {
     var loggerPrefix = getLoggerPrefix("getBySmsAction");
     return handleResult(
         loggerPrefix,
-        getConverter().convertToDto(smsTemplateService.getBySmsAction(query.getName())));
-  }
-
-  @PostMapping(value = "/save")
-  public ResponseEntity<ServiceResult> save(
-      @RequestBody SaveQuery<org.jhapy.dto.domain.notification.SmsTemplate> query) {
-    var loggerPrefix = getLoggerPrefix("save");
-    return handleResult(
-        loggerPrefix,
-        getConverter()
-            .convertToDto(
-                smsTemplateService.save(getConverter().convertToDomain(query.getEntity()))));
-  }
-
-  @PostMapping(value = "/delete")
-  public ResponseEntity<ServiceResult> delete(@RequestBody DeleteByIdQuery query) {
-    var loggerPrefix = getLoggerPrefix("delete");
-    smsTemplateService.delete(query.getId());
-    return handleResult(loggerPrefix);
+        queryGateway
+            .query(
+                new GetSmsTemplateBySmsActionQuery(query.getName()),
+                ResponseTypes.instanceOf(GetSmsTemplateBySmsActionResponse.class))
+            .join());
   }
 }

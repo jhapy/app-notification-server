@@ -12,6 +12,4 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Configuration
 @EnableScheduling
 @ComponentScan({"org.jhapy.notification.task"})
-public class SpringTaskConfig {
-
-}
+public class SpringTaskConfig {}

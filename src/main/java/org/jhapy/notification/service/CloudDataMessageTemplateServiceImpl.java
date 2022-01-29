@@ -93,8 +93,8 @@ public class CloudDataMessageTemplateServiceImpl
   @Override
   @Transactional
   public void delete(CloudDataMessageTemplate cloudDataMessageTemplate) {
-    if (cloudDataMessageTemplate.getIsActive()) {
-      cloudDataMessageTemplate.setIsActive(false);
+    if (cloudDataMessageTemplate.isActive()) {
+      cloudDataMessageTemplate.setActive(false);
       cloudDataMessageTemplateRepository.save(cloudDataMessageTemplate);
     } else {
       cloudDataMessageTemplateRepository.delete(cloudDataMessageTemplate);

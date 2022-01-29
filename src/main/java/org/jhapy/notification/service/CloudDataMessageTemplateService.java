@@ -1,10 +1,10 @@
 package org.jhapy.notification.service;
 
-import java.util.Optional;
 import org.jhapy.notification.domain.CloudDataMessageTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Optional;
 
 public interface CloudDataMessageTemplateService extends BaseCrudService<CloudDataMessageTemplate> {
 
@@ -14,8 +14,8 @@ public interface CloudDataMessageTemplateService extends BaseCrudService<CloudDa
 
   long countByCloudDataMessageAction(String cloudDataMessageAction);
 
-  Optional<CloudDataMessageTemplate> findByCloudDataMessageAction(String cloudDataMessageAction,
-      String iso3Language);
+  Optional<CloudDataMessageTemplate> findByCloudDataMessageAction(
+      String cloudDataMessageAction, String iso3Language);
 
   CloudDataMessageTemplate add(CloudDataMessageTemplate cloudDataMessageTemplate);
 

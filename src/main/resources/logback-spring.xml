@@ -49,6 +49,7 @@
   <springProfile name="local,k8s-local">
     <logger level="DEBUG" name="org.jhapy"/>
     <logger level="INFO" name="org.springframework"/>
+    <logger level="INFO" name="org.axonframework"/>
 
     <root level="INFO">
       <appender-ref ref="CONSOLE"/>

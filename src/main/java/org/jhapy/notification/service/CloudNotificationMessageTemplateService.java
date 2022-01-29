@@ -1,13 +1,13 @@
 package org.jhapy.notification.service;
 
-import java.util.Optional;
 import org.jhapy.notification.domain.CloudNotificationMessageTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Optional;
 
-public interface CloudNotificationMessageTemplateService extends
-    BaseCrudService<CloudNotificationMessageTemplate> {
+public interface CloudNotificationMessageTemplateService
+    extends BaseCrudService<CloudNotificationMessageTemplate> {
 
   Page<CloudNotificationMessageTemplate> findAnyMatching(String filter, Pageable pageable);
 
